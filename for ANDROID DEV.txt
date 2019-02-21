@@ -1,2 +1,0 @@
-CORE ML for apple
-koltin for andoird
