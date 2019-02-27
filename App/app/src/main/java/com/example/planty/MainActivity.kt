@@ -1,5 +1,6 @@
 package com.example.planty
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -24,6 +25,14 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "Password: " + password)
 
             //GOT TO 23.55 in the video
+        }
+
+        alreadyhaveaccount_textview_register.setOnClickListener {
+            Log.d("MainActivity", "Trying to Log in")
+
+            //Launch the login activity
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
         }
     }
 }
