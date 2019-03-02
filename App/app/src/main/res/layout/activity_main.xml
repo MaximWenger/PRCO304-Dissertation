@@ -12,7 +12,7 @@
             android:inputType="textPersonName"
             android:ems="10"
             android:id="@+id/username_edittext_register"
-            android:background="@android:color/background_light" android:layout_marginStart="32dp"
+            android:background="@drawable/rounded_edittext_register" android:layout_marginStart="32dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="32dp"
             android:layout_marginEnd="32dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginRight="32dp"
@@ -25,7 +25,7 @@
             android:inputType="textEmailAddress"
             android:ems="10"
             android:id="@+id/email_edittext_register"
-            android:background="@android:color/background_light" android:hint="Email" android:layout_marginTop="8dp"
+            android:background="@drawable/rounded_edittext_register" android:hint="Email" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/username_edittext_register"
             app:layout_constraintEnd_toEndOf="@+id/username_edittext_register"
             app:layout_constraintStart_toStartOf="@+id/username_edittext_register"
@@ -37,7 +37,7 @@
             android:inputType="textPassword"
             android:ems="10"
             android:id="@+id/password_edittext_register"
-            android:background="@android:color/background_light" android:hint="Password" android:layout_marginTop="8dp"
+            android:background="@drawable/rounded_edittext_register" android:hint="Password" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/email_edittext_register"
             app:layout_constraintStart_toStartOf="@+id/email_edittext_register"
             app:layout_constraintEnd_toEndOf="@+id/email_edittext_register"
@@ -50,7 +50,9 @@
             android:id="@+id/register_button_register" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/password_edittext_register"
             app:layout_constraintStart_toStartOf="@+id/password_edittext_register"
-            app:layout_constraintEnd_toEndOf="@+id/password_edittext_register"/>
+            app:layout_constraintEnd_toEndOf="@+id/password_edittext_register"
+    android:background="@drawable/rounded_green_button"/>
+
     <TextView
             android:text="Aready have an account?"
             android:layout_width="wrap_content"
