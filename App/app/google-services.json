@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "952105573432",
+    "firebase_url": "https://kotlinplanty.firebaseio.com",
+    "project_id": "kotlinplanty",
+    "storage_bucket": "kotlinplanty.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952105573432:android:67f53371841e27ce",
+        "android_client_info": {
+          "package_name": "com.example.planty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "952105573432-tdh1dpb6bst1klevr784pee122o2af5i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDl31l_ErVrYN3n2sj8YL1Rx6vE9X_TlNM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
