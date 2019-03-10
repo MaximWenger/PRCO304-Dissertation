@@ -70,13 +70,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveUserToDataBase(Username: String){
-        Log.d("MainActivity", "Trying to save user")
-        val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator
-        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        Log.d("MainActivity", "Trying to save user") //Debug
 
-        val user = User(Username, uid)
+        val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated user to the database within Firebase
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")//Using the unique ID (Used to link authenticated user to the database within Firebase) as a unique name within Firebase
 
-        ref.setValue(user).addOnSuccessListener {
+        val user = User(Username, uid) //Creating new user object, to populate Firebase with
+
+        ref.setValue(user).addOnSuccessListener { //Saving the user object to the Firebase database.
             Log.d("MainActivity", "Saved username and unique identifer to the database")
         }
             .addOnFailureListener{
