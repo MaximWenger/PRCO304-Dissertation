@@ -8,7 +8,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.auth.FirebaseUser
-
+import com.google.firebase.database.FirebaseDatabase
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,15 +28,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeActivityToLogin() {
+    private fun changeActivityToLogin() {//Change activity to the login activity
         Log.d("MainActivity", "Trying to Log in")
         //Launch the login activity
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
 
-    private fun registerUser(){
-
+    private fun registerUser(){//Attempt to register the new user details with Firebase
+        val username = username_edittext_register.text.toString() //Get the username
         val email = email_edittext_register.text.toString() //Get the user email
         val password = password_edittext_register.text.toString() //Get the user password
 
@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity() {
                 if(!it.isSuccessful) return@addOnCompleteListener
 
                 Log.d("Main", "Successfully created user with uid: ${it.result!!.user.uid}")
+                saveUserToDataBase(username)
             }
             .addOnFailureListener{
                 Log.d("Main", "Failed to create user ${it.message}")
@@ -68,4 +69,22 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun saveUserToDataBase(Username: String){
+        Log.d("MainActivity", "Trying to save user")
+        val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+
+        val user = User(Username, uid)
+
+        ref.setValue(user).addOnSuccessListener {
+            Log.d("MainActivity", "Saved username and unique identifer to the database")
+        }
+            .addOnFailureListener{
+                Log.d("MainActivity", "Something went wrong ${it.message}")
+            }
+    }
+
+
 }
+
+class User(val username: String, val uid: String)
