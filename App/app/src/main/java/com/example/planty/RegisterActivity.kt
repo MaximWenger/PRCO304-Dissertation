@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.FirebaseDatabase
 
 
-class RegisterActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
 
 
@@ -69,12 +69,6 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
-    private fun changeActivityToHome(){
-        val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
-        startActivity(intent) //Change to new class
-    }
-
     private fun saveUserToDataBase(Username: String){
         Log.d("RegisterActivity", "Trying to save user") //Debug
 
@@ -85,8 +79,6 @@ class RegisterActivity : AppCompatActivity() {
 
         ref.setValue(user).addOnSuccessListener { //Saving the user object to the Firebase database.
             Log.d("RegisterActivity", "Saved username and unique identifer to the database")
-
-            changeActivityToHome() //Change actvity to homeactivity
         }
             .addOnFailureListener{
                 Log.d("RegisterActivity", "Something went wrong ${it.message}")
