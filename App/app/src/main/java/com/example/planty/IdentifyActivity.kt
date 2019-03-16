@@ -13,7 +13,7 @@ class IdentifyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identify)
 
-        supportActionBar?.title = "Planty  |  Find Plants"
+        supportActionBar?.title = "Planty  |  Identify Plants"
 
         verifyLoggedIn()//check the user is logged in
 
@@ -38,11 +38,11 @@ class IdentifyActivity : AppCompatActivity() {
             R.id.nav_Profile -> { //DOES NOTHING RIGHT NOW
                 return super.onOptionsItemSelected(item)  //
             }
-            R.id.nav_Identify -> { //DOES NOTHING RIGHT NOW
-                return super.onOptionsItemSelected(item)  //
+            R.id.nav_Identify -> {
+                return super.onOptionsItemSelected(item)  //Return as already within Identify Activity
             }
-            R.id.nav_Find -> { //DOES NOTHING RIGHT NOW
-                return super.onOptionsItemSelected(item)  //
+            R.id.nav_Find -> {
+                navToMapsActivity() //Go to MapsActivity
             }
             R.id.nav_Sign_Out -> {
                 signOut() //Signs the user out and returns to RegisterActivity
@@ -60,6 +60,12 @@ class IdentifyActivity : AppCompatActivity() {
         val intent = Intent(this, RegisterActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
+    }
+
+    private fun navToMapsActivity(){
+        val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
+      //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        startActivity(intent) //Change to new class
     }
 }
  //CURRENTLY AT 14:59, ADDING A META TAG TO THE MANIFEST TO ADD A BACK BUTTON IN THE RIGHT AREA
