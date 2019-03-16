@@ -27,6 +27,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         supportActionBar?.title = "Planty  |  Find Plants"
+        verifyLoggedIn()//check the user is logged in
     }
 
     /**
@@ -53,9 +54,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean { //When an option from the menu is clicked
-        when (item?.itemId){ //Switch statement
-            R.id.nav_Profile -> { //DOES NOTHING RIGHT NOW
-                return super.onOptionsItemSelected(item)  //
+        when (item?.itemId) { //Switch statement
+            R.id.nav_Profile -> {
+                navToProfileActivity() //Go to ProfileActivity
             }
             R.id.nav_Identify -> {
                 navToIdentifyActivity() //Go to IdentifyActivity
@@ -69,20 +70,36 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             R.id.nav_Contact -> { //DOES NOTHING RIGHT NOW
                 return super.onOptionsItemSelected(item)  //
             }
-            else ->  return super.onOptionsItemSelected(item)
+            else -> return super.onOptionsItemSelected(item)
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun signOut(){
+    private fun signOut() {
         FirebaseAuth.getInstance().signOut()
         val intent = Intent(this, RegisterActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
 
-    private fun navToIdentifyActivity(){
+    private fun navToIdentifyActivity() {
         val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
+        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        startActivity(intent) //Change to new class
+    }
+
+    private fun verifyLoggedIn() { //Check if the user is already logged in, if not, return user to registerActivity
+        val uid = FirebaseAuth.getInstance().uid
+        if (uid == null) {
+            val intent = Intent(this, RegisterActivity::class.java)
+            intent.flags =
+                Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+            startActivity(intent)
+        }
+    }
+
+    private fun navToProfileActivity() {
+        val intent = Intent(this, ProfileActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
     }
