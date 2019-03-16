@@ -25,6 +25,9 @@ class LoginActivity: AppCompatActivity() { //Combatability Activity
                     if(it.isSuccessful){ //If the login is successful
                         Log.d("Login", "Successfully logged in : ${it.result!!.user.uid}")
                         Toast.makeText(this, "Logged in!", Toast.LENGTH_SHORT).show()
+
+                        changeActivityToHome() //When logged in, change activity to home
+
                     }
                 }
                 .addOnFailureListener{ //If the login fails
@@ -37,10 +40,16 @@ class LoginActivity: AppCompatActivity() { //Combatability Activity
         textview_backtoregistration_login.setOnClickListener {
             Log.d("MainActivity", "Returning to Registration activity")
 
-            val intent = Intent(this,  MainActivity::class.java)
+            val intent = Intent(this,  RegisterActivity::class.java)
             startActivity(intent)
         }
 
 
+    }
+
+    private fun changeActivityToHome(){
+        val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        startActivity(intent) //Change to new class
     }
 }
