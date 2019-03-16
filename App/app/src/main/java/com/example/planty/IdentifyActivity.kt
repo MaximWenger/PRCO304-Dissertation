@@ -13,6 +13,8 @@ class IdentifyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identify)
 
+        supportActionBar?.title = "Planty  |  Find Plants"
+
         verifyLoggedIn()//check the user is logged in
 
     }
