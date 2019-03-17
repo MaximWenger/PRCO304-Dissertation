@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -20,14 +21,25 @@ class IdentifyActivity : AppCompatActivity() {
 
         verifyLoggedIn()//check the user is logged in
 
-        selectgallery_button_Identify.setOnClickListener{
-            Log.d("IdentifyMenu", "Clicked the gallery")
-
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*" //View all photo directories on the phone
-            startActivityForResult(intent, 0)
-
+        selectgallery_button_Identify.setOnClickListener{ //Called when gallery icon is selected
+            getGalleryImage()// Get image from device gallery
         }
+        selectcamera_button_Identify.setOnClickListener{
+            getCameraImage()//Open device camera and use the image taken
+        }
+    }
+
+    private fun getCameraImage(){//Open device camera and use the image taken
+        Log.d("IdentifyMenu","Clicked the camera")
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(intent, 0)
+    }
+
+    private fun getGalleryImage(){ // Get image from device gallery
+        Log.d("IdentifyMenu", "Clicked the gallery")
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*" //View all photo directories on the phone
+        startActivityForResult(intent, 0)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //Gets called after image is chosen from gallery

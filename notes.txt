@@ -1,0 +1,8 @@
+Due to the use of This objects, the code which utalized this method was not able to be extended into the new classes due to this 
+object
+
+Questions for Ismini:
+Repeated code, If i'm unable to put some methods into a class and this code is repeated around activites, will I penealised?
+Even if I'm able to explain as to why
+
+If it doesnt work on my phone, but does on pc. Is that still okay?
