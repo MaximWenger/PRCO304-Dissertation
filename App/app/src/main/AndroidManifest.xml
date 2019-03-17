@@ -6,7 +6,12 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the 'MyLocation' functionality.
     -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+   
 
     <application
             android:allowBackup="true"
@@ -15,7 +20,7 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".ProfileActivity">
+        <activity android:name=".ProfileActivity" android:screenOrientation="portrait">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".MapsActivity"/>
@@ -32,23 +37,21 @@
                 android:name="com.google.android.geo.API_KEY"
                 android:value="@string/google_maps_key"/>
 
-        <activity
-                android:name=".MapsActivity"
-                android:label="@string/title_activity_maps">
+        <activity android:name=".MapsActivity" android:label="@string/title_activity_maps" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".IdentifyActivity">
+        <activity android:name=".IdentifyActivity" android:screenOrientation="portrait">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".MapsActivity"/>
         </activity>
-        <activity android:name=".RegisterActivity">
+        <activity android:name=".RegisterActivity" android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".LoginActivity">
+        <activity android:name=".LoginActivity" android:screenOrientation="portrait">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".RegisterActivity"/>

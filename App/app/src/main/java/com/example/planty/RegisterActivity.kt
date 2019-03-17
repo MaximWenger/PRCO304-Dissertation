@@ -20,6 +20,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         register_button_register.setOnClickListener {
+            Log.d("RegisterActivity", "Register button pressed")
             registerUser()
         }
 
