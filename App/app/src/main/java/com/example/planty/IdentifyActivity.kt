@@ -1,11 +1,14 @@
 package com.example.planty
 
+import android.app.Activity
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.android.synthetic.main.activity_identify.*
 
 class IdentifyActivity : AppCompatActivity() {
 
@@ -17,6 +20,24 @@ class IdentifyActivity : AppCompatActivity() {
 
         verifyLoggedIn()//check the user is logged in
 
+        selectgallery_button_Identify.setOnClickListener{
+            Log.d("IdentifyMenu", "Clicked the gallery")
+
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.type = "image/*" //View all photo directories on the phone
+            startActivityForResult(intent, 0)
+
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //Gets called after image is chosen from gallery
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null){ //Check the photo is selected
+            Log.d("IdentifyActivity", "Photo was selected")
+            val uri = data.data
+
+            //Video 3 @ 11:12 to learn how to do other stuff with the image
+        }
     }
 
     private fun verifyLoggedIn(){ //Check if the user is already logged in, if not, return user to registerActivity
