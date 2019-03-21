@@ -9,6 +9,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import kotlinx.android.synthetic.main.activity_identify.*
 
 class IdentifyActivity : AppCompatActivity() {
@@ -22,6 +25,7 @@ class IdentifyActivity : AppCompatActivity() {
         verifyLoggedIn()//check the user is logged in
 
         selectgallery_button_Identify.setOnClickListener{ //Called when gallery icon is selected
+
             getGalleryImage()// Get image from device gallery
         }
         selectcamera_button_Identify.setOnClickListener{
@@ -30,13 +34,13 @@ class IdentifyActivity : AppCompatActivity() {
     }
 
     private fun getCameraImage(){//Open device camera and use the image taken
-        Log.d("IdentifyMenu","Clicked the camera")
+        Log.d("IdentifyActivity","Clicked the camera")
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(intent, 0)
     }
 
     private fun getGalleryImage(){ // Get image from device gallery
-        Log.d("IdentifyMenu", "Clicked the gallery")
+        Log.d("IdentifyActivity", "Clicked the gallery")
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*" //View all photo directories on the phone
         startActivityForResult(intent, 0)
@@ -47,8 +51,36 @@ class IdentifyActivity : AppCompatActivity() {
         if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null){ //Check the photo is selected
             Log.d("IdentifyActivity", "Photo was selected")
             val uri = data.data
+            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)//Convert the resulting image to a bitmap
 
-            //Video 3 @ 11:12 to learn how to do other stuff with the image
+            //------
+
+            val image = FirebaseVisionImage.fromBitmap(bitmap) //Convert the bitmap into an image designed for ML Firebase //NOT CHECKED FOR ROTATION
+            val labeler = FirebaseVision.getInstance().getCloudImageLabeler()
+            labeler.processImage(image)
+                .addOnSuccessListener {
+                    labels ->
+
+                    Log.d("IdentifyActivity","It worked!")
+
+
+                    for (label in labels) {
+                        val text = label.text
+                        val entityId = label.entityId
+                        val confidence = label.confidence
+
+                        Log.d("IdentifyActivity", "Text = ${text}")
+                        Log.d("IdentifyActivity", "entityID = ${entityId}")
+                        Log.d("IdentifyActivity", "confidence = ${confidence}")
+                    }
+                }
+                .addOnFailureListener{
+                    e ->
+                    Log.d("IdentifyActivity", "Something went wrong : ${e.message}")
+                }
+
+
+           // Video 3 @ 11:12 to learn how to do other stuff with the image
         }
     }
 
