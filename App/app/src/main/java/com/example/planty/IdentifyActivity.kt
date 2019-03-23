@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
 import kotlinx.android.synthetic.main.activity_identify.*
 import java.lang.Exception
 
@@ -60,40 +61,52 @@ class IdentifyActivity : AppCompatActivity() {
                 val uri = data.data
                 val bitmap =
                     MediaStore.Images.Media.getBitmap(contentResolver, uri)//Convert the resulting image to a bitmap
-
-                //------
-
                 val image =
                     FirebaseVisionImage.fromBitmap(bitmap) //Convert the bitmap into an image designed for ML Firebase //NOT CHECKED FOR ROTATION
                 val labeler = FirebaseVision.getInstance().getCloudImageLabeler()
                 labeler.processImage(image)
                     .addOnSuccessListener { labels ->
-
                         Log.d("IdentifyActivity", "It worked!")
-
-
-                        for (label in labels) {
+/*                        for (label in labels) {
                             val text = label.text
                             val entityId = label.entityId
                             val confidence = label.confidence
-
                             Log.d("IdentifyActivity", "Text = ${text}")
                             Log.d("IdentifyActivity", "entityID = ${entityId}")
                             Log.d("IdentifyActivity", "confidence = ${confidence}")
-                        }
+                            Log.d("IdentifyActivity", "Total amount = ${labels.size}")
+                        }*/
+                        imageDataFilter(labels)
                     }
                     .addOnFailureListener { e ->
                         Log.d("IdentifyActivity", "Something went wrong : ${e.message}")
                     }
-
-
-                // Video 3 @ 11:12 to learn how to do other stuff with the image
             }
         }
         catch (e: Exception){
             Log.d("IdentifyActivity", "Image processing broke = ${e.message}")
         }
     }
+
+    private fun imageDataFilter(list: List<FirebaseVisionImageLabel>){
+    for (label in list){
+        val text = label.text
+        val entityId = label.entityId
+        val confidence = label.confidence
+        Log.d("IdentifyActivity", "Text = ${text}")
+        Log.d("IdentifyActivity", "entityID = ${entityId}")
+        Log.d("IdentifyActivity", "confidence = ${confidence}")
+        Log.d("IdentifyActivity", "Total amount = ${list.size}")
+    }
+
+        val toRemove = arrayOf("Petal","Plant", "Yellow", "Flower", "Flowering Plant", "Spring", "Wildflower")
+        val lowerCase = toRemove.map { it.toLowerCase() }
+        Log.d("IdentifyActivity", "${lowerCase.last()}")
+        //Change all words to lowercase
+        //Compare against the list, remove the lists which contain the offending word
+    }
+
+
 
     private fun verifyLoggedIn(){ //Check if the user is already logged in, if not, return user to registerActivity
         val uid = FirebaseAuth.getInstance().uid
