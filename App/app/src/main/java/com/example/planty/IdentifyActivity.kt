@@ -5,6 +5,8 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.system.Os.remove
+import android.text.TextUtils.indexOf
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -88,8 +90,10 @@ class IdentifyActivity : AppCompatActivity() {
         }
     }
 
-    private fun imageDataFilter(list: List<FirebaseVisionImageLabel>){
+    private fun imageDataFilter(list: MutableList<FirebaseVisionImageLabel>){ //Change the immutable list to mutable
+        var index = 0
     for (label in list){
+        index++
         val text = label.text
         val entityId = label.entityId
         val confidence = label.confidence
@@ -97,13 +101,36 @@ class IdentifyActivity : AppCompatActivity() {
         Log.d("IdentifyActivity", "entityID = ${entityId}")
         Log.d("IdentifyActivity", "confidence = ${confidence}")
         Log.d("IdentifyActivity", "Total amount = ${list.size}")
+
+       if (compareLabel(text)) { //If the label has been found within the reserved words. remove it
+            Log.d("IdentifyActivity", "Removing = ${text}")
+
+           try {
+               // list.remove(label)
+               //list.removeAt(1)
+               var test: MutableList<FirebaseVisionImageLabel> =
+               //////////////////////////////////////////////////////////////////////////////////
+
+               Log.d("IdentifyActivity", "WOULD REMOVE")
+           }catch (e: Exception){
+               Log.d("IdentifyActivity", "ERROR = ${e.message}")
+           }
+       }
     }
 
-        val toRemove = arrayOf("Petal","Plant", "Yellow", "Flower", "Flowering Plant", "Spring", "Wildflower")
-        val lowerCase = toRemove.map { it.toLowerCase() }
-        Log.d("IdentifyActivity", "${lowerCase.last()}")
-        //Change all words to lowercase
-        //Compare against the list, remove the lists which contain the offending word
+
+    }
+
+    private fun compareLabel(text: String): Boolean { //Returns Boolean if the given string is within the existing blacklist (library)
+
+        val toRemoveLibary = arrayOf("Petal","Plant", "Yellow", "Flower", "Flowering Plant", "Spring", "Wildflower")
+        val lowerCaseLibary = toRemoveLibary.map { it.toLowerCase() }//Convert entire array to lowercase
+        var lowerCaseText = text.decapitalize() //Need to use decapitize as .toLowerCase uses an array
+
+        if (lowerCaseLibary.contains(lowerCaseText)){ //If the libary contains a key word
+            return true
+        }
+        return false
     }
 
 
@@ -164,3 +191,4 @@ class IdentifyActivity : AppCompatActivity() {
     }
 }
  //CURRENTLY AT 14:59, ADDING A META TAG TO THE MANIFEST TO ADD A BACK BUTTON IN THE RIGHT AREA
+
