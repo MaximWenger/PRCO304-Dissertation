@@ -5,15 +5,13 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
-import android.system.Os.remove
-import android.text.TextUtils.indexOf
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
 import kotlinx.android.synthetic.main.activity_identify.*
 import java.lang.Exception
@@ -57,28 +55,26 @@ class IdentifyActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //Gets called after image is chosen from gallery
         try {
+            var sortedList = mutableListOf<FirebaseVisionImageLabel>()
             super.onActivityResult(requestCode, resultCode, data)
             if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) { //Check the photo is selected
                 Log.d("IdentifyActivity", "Photo was selected")
                 val uri = data.data
-                val bitmap =
-                    MediaStore.Images.Media.getBitmap(contentResolver, uri)//Convert the resulting image to a bitmap
-                val image =
-                    FirebaseVisionImage.fromBitmap(bitmap) //Convert the bitmap into an image designed for ML Firebase //NOT CHECKED FOR ROTATION
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)//Convert the resulting image to a bitmap
+                val image = FirebaseVisionImage.fromBitmap(bitmap) //Convert the bitmap into an image designed for ML Firebase //NOT CHECKED FOR ROTATION
                 val labeler = FirebaseVision.getInstance().getCloudImageLabeler()
                 labeler.processImage(image)
                     .addOnSuccessListener { labels ->
                         Log.d("IdentifyActivity", "It worked!")
-/*                        for (label in labels) {
-                            val text = label.text
-                            val entityId = label.entityId
-                            val confidence = label.confidence
-                            Log.d("IdentifyActivity", "Text = ${text}")
-                            Log.d("IdentifyActivity", "entityID = ${entityId}")
-                            Log.d("IdentifyActivity", "confidence = ${confidence}")
-                            Log.d("IdentifyActivity", "Total amount = ${labels.size}")
-                        }*/
-                        imageDataFilter(labels)
+                        if (cloudVisionData().confirmPlant(labels)) { //check if the image looks to have a plant
+                            Log.d("IdentifyActivity","THIS IS A PLANT")
+                          sortedList =  cloudVisionData().imageDataFilter(labels) //Sort the vision data
+                            Log.d("IdentifyActivity","${sortedList.size}")/////////////////////////////////////////////////////////////////////////////
+                        }
+                        else {
+                            Log.d("IdentifyActivity", "NOT A PLANT")
+                            Toast.makeText(this, "NOT A PLANT BOI", Toast.LENGTH_SHORT).show()
+                        }
                     }
                     .addOnFailureListener { e ->
                         Log.d("IdentifyActivity", "Something went wrong : ${e.message}")
@@ -90,48 +86,7 @@ class IdentifyActivity : AppCompatActivity() {
         }
     }
 
-    private fun imageDataFilter(list: MutableList<FirebaseVisionImageLabel>){ //Change the immutable list to mutable
-        var index = 0
-    for (label in list){
-        index++
-        val text = label.text
-        val entityId = label.entityId
-        val confidence = label.confidence
-        Log.d("IdentifyActivity", "Text = ${text}")
-        Log.d("IdentifyActivity", "entityID = ${entityId}")
-        Log.d("IdentifyActivity", "confidence = ${confidence}")
-        Log.d("IdentifyActivity", "Total amount = ${list.size}")
 
-       if (compareLabel(text)) { //If the label has been found within the reserved words. remove it
-            Log.d("IdentifyActivity", "Removing = ${text}")
-
-           try {
-               // list.remove(label)
-               //list.removeAt(1)
-               var test: MutableList<FirebaseVisionImageLabel> =
-               //////////////////////////////////////////////////////////////////////////////////
-
-               Log.d("IdentifyActivity", "WOULD REMOVE")
-           }catch (e: Exception){
-               Log.d("IdentifyActivity", "ERROR = ${e.message}")
-           }
-       }
-    }
-
-
-    }
-
-    private fun compareLabel(text: String): Boolean { //Returns Boolean if the given string is within the existing blacklist (library)
-
-        val toRemoveLibary = arrayOf("Petal","Plant", "Yellow", "Flower", "Flowering Plant", "Spring", "Wildflower")
-        val lowerCaseLibary = toRemoveLibary.map { it.toLowerCase() }//Convert entire array to lowercase
-        var lowerCaseText = text.decapitalize() //Need to use decapitize as .toLowerCase uses an array
-
-        if (lowerCaseLibary.contains(lowerCaseText)){ //If the libary contains a key word
-            return true
-        }
-        return false
-    }
 
 
 
