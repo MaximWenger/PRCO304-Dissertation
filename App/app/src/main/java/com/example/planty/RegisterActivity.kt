@@ -36,19 +36,19 @@ class RegisterActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun registerUser(){//Attempt to register the new user details with Firebase
+    private fun registerUser(){//Attempt to register the new User details with Firebase
         val username = username_edittext_register.text.toString() //Get the username
-        val email = email_edittext_register.text.toString() //Get the user email
-        val password = password_edittext_register.text.toString() //Get the user password
+        val email = email_edittext_register.text.toString() //Get the User email
+        val password = password_edittext_register.text.toString() //Get the User password
 
-        if (email.isEmpty() || password.isEmpty()){ //If both fields are empty, display error message to user
+        if (email.isEmpty() || password.isEmpty()){ //If both fields are empty, display error message to User
             Toast.makeText(this, "Please enter an email and password", Toast.LENGTH_SHORT).show()
             return
         }
-        else if (email.isEmpty()) { //If the email is empty, display error message to user
+        else if (email.isEmpty()) { //If the email is empty, display error message to User
             Toast.makeText(this, "Please enter an email", Toast.LENGTH_SHORT).show()
             return
-        } else if (password.isEmpty()){ //If the password is empty, display error message to user
+        } else if (password.isEmpty()){ //If the password is empty, display error message to User
             Toast.makeText(this, "Please enter a password", Toast.LENGTH_SHORT).show()
             return
         }
@@ -61,11 +61,11 @@ class RegisterActivity : AppCompatActivity() {
             .addOnCompleteListener {
                 if(!it.isSuccessful) return@addOnCompleteListener
 
-                Log.d("RegisterActivity", "Successfully created user with uid: ${it.result!!.user.uid}")
+                Log.d("RegisterActivity", "Successfully created User with uid: ${it.result!!.user.uid}")
                 saveUserToDataBase(username)
             }
             .addOnFailureListener{
-                Log.d("RegisterActivity", "Failed to create user ${it.message}")
+                Log.d("RegisterActivity", "Failed to create User ${it.message}")
                 Toast.makeText(this, "Failed to create. ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
@@ -77,14 +77,14 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun saveUserToDataBase(Username: String){
-        Log.d("RegisterActivity", "Trying to save user") //Debug
+        Log.d("RegisterActivity", "Trying to save User") //Debug
 
-        val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated user to the database within Firebase
-        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")//Using the unique ID (Used to link authenticated user to the database within Firebase) as a unique name within Firebase
+        val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
 
-        val user = User(Username, uid) //Creating new user object, to populate Firebase with
+        val user = User(Username, uid) //Creating new User object, to populate Firebase with
 
-        ref.setValue(user).addOnSuccessListener { //Saving the user object to the Firebase database.
+        ref.setValue(user).addOnSuccessListener { //Saving the User object to the Firebase database.
             Log.d("RegisterActivity", "Saved username and unique identifer to the database")
 
             changeActivityToHome() //Change actvity to homeactivity
@@ -97,4 +97,3 @@ class RegisterActivity : AppCompatActivity() {
 
 }
 
-class User(val username: String, val uid: String)

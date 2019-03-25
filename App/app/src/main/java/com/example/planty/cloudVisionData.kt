@@ -31,7 +31,6 @@ import java.lang.Exception
                  Log.d("IdentifyActivity", "Total amount = ${list.size}")
 
                  if (!compareLabel(text, 0)) { //If the label has been found within the reserved words. remove it
-                     Log.d("IdentifyActivity", "Removing = ${text}")
                      try {
                          sortedList.add(label) //Add the identification to the sortedList
                          Log.d("IdentifyActivity", "Test SIZE = ${sortedList.size}")

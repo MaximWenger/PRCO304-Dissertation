@@ -24,7 +24,7 @@ class IdentifyActivity : AppCompatActivity() {
 
         supportActionBar?.title = "Planty  |  Identify Plants"
 
-        verifyLoggedIn()//check the user is logged in
+        verifyLoggedIn()//check the User is logged in
 
         selectgallery_button_Identify.setOnClickListener{ //Called when gallery icon is selected
 
@@ -55,7 +55,7 @@ class IdentifyActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //Gets called after image is chosen from gallery
         try {
-            var sortedList = mutableListOf<FirebaseVisionImageLabel>()
+           // var sortedList = mutableListOf<FirebaseVisionImageLabel>()
             super.onActivityResult(requestCode, resultCode, data)
             if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) { //Check the photo is selected
                 Log.d("IdentifyActivity", "Photo was selected")
@@ -68,7 +68,32 @@ class IdentifyActivity : AppCompatActivity() {
                         Log.d("IdentifyActivity", "It worked!")
                         if (cloudVisionData().confirmPlant(labels)) { //check if the image looks to have a plant
                             Log.d("IdentifyActivity","THIS IS A PLANT")
-                          sortedList =  cloudVisionData().imageDataFilter(labels) //Sort the vision data
+                         var sortedList =  cloudVisionData().imageDataFilter(labels) //Sort the vision data
+
+                            val intent = Intent(this, ProfileActivity::class.java)
+                           // intent.putExtra("totalSize", sortedList.size)
+
+                          // var testtest =  ArrayList(sortedList)
+
+                            ///Create arraylist from sortedList
+                           // var testList: MutableList<String!> = mutableListOf()
+                            var counter = -1
+                            var testList = ArrayList<String>()
+                            for (label in sortedList) {
+                                testList.add(counter + 1, label.text)
+                                testList.add(counter + 1, label.entityId.toString())
+                                testList.add(counter + 1, label.confidence.toString())
+                            }
+                            var b = Bundle()
+                            b.putStringArrayList("test", testList)
+                            intent.putExtras(b)
+                            startActivity(intent)
+                            //intent.putParcelableArrayListExtra("test", ArrayList(testList))
+
+
+
+                            startActivity(intent)
+
                             Log.d("IdentifyActivity","${sortedList.size}")/////////////////////////////////////////////////////////////////////////////
                         }
                         else {
@@ -90,7 +115,7 @@ class IdentifyActivity : AppCompatActivity() {
 
 
 
-    private fun verifyLoggedIn(){ //Check if the user is already logged in, if not, return user to registerActivity
+    private fun verifyLoggedIn(){ //Check if the User is already logged in, if not, return User to registerActivity
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null){
             val intent =  Intent(this, RegisterActivity::class.java)
@@ -116,7 +141,7 @@ class IdentifyActivity : AppCompatActivity() {
                 navToMapsActivity() //Go to MapsActivity
             }
             R.id.nav_Sign_Out -> {
-                signOut() //Signs the user out and returns to RegisterActivity
+                signOut() //Signs the User out and returns to RegisterActivity
             }
             R.id.nav_Contact -> { //DOES NOTHING RIGHT NOW
                 return super.onOptionsItemSelected(item)  //

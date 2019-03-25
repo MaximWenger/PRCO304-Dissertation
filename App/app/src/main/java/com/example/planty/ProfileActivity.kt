@@ -3,6 +3,7 @@ package com.example.planty
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
@@ -13,10 +14,17 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
-        verifyLoggedIn()//check the user is logged in
+        verifyLoggedIn()//check the User is logged in
+
+        val test = intent.getStringArrayListExtra("test")
+        Log.d("ProfileActivity", "test = ${test.size}")
+        for (item in test){
+            Log.d("ProfileActivity", "test = ${item}")
+        }
+        Log.d("ProfileActivity", "COMPLETED")
     }
 
-    private fun verifyLoggedIn(){ //Check if the user is already logged in, if not, return user to registerActivity
+    private fun verifyLoggedIn(){ //Check if the User is already logged in, if not, return User to registerActivity
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null){
             val intent =  Intent(this, RegisterActivity::class.java)
@@ -42,7 +50,7 @@ class ProfileActivity : AppCompatActivity() {
                 navToMapsActivity() //Go to MapsActivity
             }
             R.id.nav_Sign_Out -> {
-                signOut() //Signs the user out and returns to RegisterActivity
+                signOut() //Signs the User out and returns to RegisterActivity
             }
             R.id.nav_Contact -> { //DOES NOTHING RIGHT NOW
                 return super.onOptionsItemSelected(item)  //

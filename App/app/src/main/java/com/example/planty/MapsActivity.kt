@@ -27,7 +27,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         supportActionBar?.title = "Planty  |  Find Plants"
-        verifyLoggedIn()//check the user is logged in
+        verifyLoggedIn()//check the User is logged in
     }
 
     /**
@@ -35,8 +35,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
      * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * If Google Play services is not installed on the device, the User will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the User has
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
@@ -65,7 +65,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 return super.onOptionsItemSelected(item)  //Return as already within MapsActivity
             }
             R.id.nav_Sign_Out -> {
-                signOut() //Signs the user out and returns to RegisterActivity
+                signOut() //Signs the User out and returns to RegisterActivity
             }
             R.id.nav_Contact -> { //DOES NOTHING RIGHT NOW
                 return super.onOptionsItemSelected(item)  //
@@ -88,7 +88,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         startActivity(intent) //Change to new class
     }
 
-    private fun verifyLoggedIn() { //Check if the user is already logged in, if not, return user to registerActivity
+    private fun verifyLoggedIn() { //Check if the User is already logged in, if not, return User to registerActivity
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null) {
             val intent = Intent(this, RegisterActivity::class.java)
