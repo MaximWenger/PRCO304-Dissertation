@@ -39,7 +39,7 @@ import java.lang.Exception
                      }
                  }
              }
-             return sortedList
+             return sortedList.asReversed()//Must reverse the sortedList, to maintain highest confidence towards the start of the new list
               }
 
      private fun compareLabel(text: String, type: Int): Boolean { //Returns Boolean if the given string is within the existing blacklist (library)
