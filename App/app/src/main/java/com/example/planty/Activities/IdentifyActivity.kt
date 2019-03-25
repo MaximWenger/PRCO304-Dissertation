@@ -1,4 +1,4 @@
-package com.example.planty
+package com.example.planty.Activities
 
 import android.app.Activity
 import android.content.Intent
@@ -9,10 +9,11 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.example.planty.R
+import com.example.planty.classes.cloudVisionData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
 import kotlinx.android.synthetic.main.activity_identify.*
 import java.lang.Exception
 
