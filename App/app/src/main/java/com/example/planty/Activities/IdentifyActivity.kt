@@ -11,8 +11,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import com.example.planty.R
+import com.example.planty.classes.ImageUID
 import com.example.planty.classes.cloudVisionData
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
@@ -96,11 +98,23 @@ class IdentifyActivity : AppCompatActivity() {
 
         ref.putFile(selectedPhotoUri!!).addOnSuccessListener {
             Log.d("IdentifyActivity", "Photo Saved!")
+            saveImageIDToUserFirebase(filename)
         }
             .addOnFailureListener{
                 Log.d("IdentifyActivity", "Something went wrong with photo save")
             }
     }
+
+    private fun saveImageIDToUserFirebase(filename: String){//Saves the user photo to Firebase
+        Log.d("IdentifyActivity","GOT TO SAVE IMAGE ID")
+        val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
+        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid/images/")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
+        val imageUID = ImageUID(filename)
+         ref.setValue(imageUID).addOnSuccessListener {
+            Log.d("IdentifyActivity", "UID saved")
+        }
+    }
+
 
 
 
