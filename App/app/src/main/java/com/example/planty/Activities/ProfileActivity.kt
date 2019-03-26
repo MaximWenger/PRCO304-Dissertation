@@ -17,12 +17,6 @@ class ProfileActivity : AppCompatActivity() {
 
         verifyLoggedIn()//check the User is logged in
 
-       /* val test = intent.getStringArrayListExtra("test")
-        Log.d("ProfileActivity", "test = ${test.size}")
-        for (item in test){
-            Log.d("ProfileActivity", "test = ${item}")
-        }
-        Log.d("ProfileActivity", "COMPLETED")*/
     }
 
     private fun verifyLoggedIn(){ //Check if the User is already logged in, if not, return User to registerActivity

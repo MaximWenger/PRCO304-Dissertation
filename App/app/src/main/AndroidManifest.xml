@@ -11,12 +11,12 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-feature android:name="android.hardware.camera" />
+
+    <uses-feature android:name="android.hardware.camera"/>
+
     <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="label" />
-    <!-- To use multiple models: android:value="label,model2,model3" -->
-   
+            android:value="label"/>
 
     <application
             android:allowBackup="true"
@@ -25,7 +25,11 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".Activities.ProfileActivity" android:screenOrientation="portrait">
+        <activity android:name=".Activities.IdentifiedActivity">
+        </activity>
+        <activity
+                android:name=".Activities.ProfileActivity"
+                android:screenOrientation="portrait">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".Activities.MapsActivity"/>
@@ -42,21 +46,30 @@
                 android:name="com.google.android.geo.API_KEY"
                 android:value="@string/google_maps_key"/>
 
-        <activity android:name=".Activities.MapsActivity" android:label="@string/title_activity_maps" android:screenOrientation="portrait">
+        <activity
+                android:name=".Activities.MapsActivity"
+                android:label="@string/title_activity_maps"
+                android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".Activities.IdentifyActivity" android:screenOrientation="portrait">
+        <activity
+                android:name=".Activities.IdentifyActivity"
+                android:screenOrientation="portrait">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".Activities.MapsActivity"/>
         </activity>
-        <activity android:name=".Activities.RegisterActivity" android:screenOrientation="portrait">
+        <activity
+                android:name=".Activities.RegisterActivity"
+                android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".Activities.LoginActivity" android:screenOrientation="portrait">
+        <activity
+                android:name=".Activities.LoginActivity"
+                android:screenOrientation="portrait">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".Activities.RegisterActivity"/>

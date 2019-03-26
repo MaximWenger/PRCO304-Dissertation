@@ -119,7 +119,7 @@ class IdentifyActivity : AppCompatActivity() {
 
 
     private fun passStringNewActivity(sortedList: MutableList<FirebaseVisionImageLabel>){ //Passes List into ArrayList, then sends that array to the new activity. Changing the activity
-        val intent = Intent(this, ProfileActivity::class.java)
+        val intent = Intent(this, IdentifiedActivity::class.java)
         var counter = -1
         var stringList = ArrayList<String>()
         for (label in sortedList) {
