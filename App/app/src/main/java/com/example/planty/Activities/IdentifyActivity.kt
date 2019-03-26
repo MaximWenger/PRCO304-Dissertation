@@ -2,6 +2,7 @@ package com.example.planty.Activities
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -14,21 +15,21 @@ import com.example.planty.classes.cloudVisionData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_identify.*
 import java.lang.Exception
+import java.util.*
 
 class IdentifyActivity : AppCompatActivity() {
+    var selectedPhotoUri: Uri? = null //Stores photo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identify)
-
         supportActionBar?.title = "Planty  |  Identify Plants"
-
         verifyLoggedIn()//check the User is logged in
-
         selectgallery_button_Identify.setOnClickListener{ //Called when gallery icon is selected
-
             getGalleryImage()// Get image from device gallery
         }
         selectcamera_button_Identify.setOnClickListener{
@@ -56,51 +57,25 @@ class IdentifyActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //Gets called after image is chosen from gallery
         try {
-           // var sortedList = mutableListOf<FirebaseVisionImageLabel>()
             super.onActivityResult(requestCode, resultCode, data)
             if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) { //Check the photo is selected
                 Log.d("IdentifyActivity", "Photo was selected")
-                val uri = data.data
-                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)//Convert the resulting image to a bitmap
+                selectedPhotoUri = data.data
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)//Convert the resulting image to a bitmap
                 val image = FirebaseVisionImage.fromBitmap(bitmap) //Convert the bitmap into an image designed for ML Firebase //NOT CHECKED FOR ROTATION
                 val labeler = FirebaseVision.getInstance().getCloudImageLabeler()
                 labeler.processImage(image)
                     .addOnSuccessListener { labels ->
-                        Log.d("IdentifyActivity", "It worked!")
                         if (cloudVisionData().confirmPlant(labels)) { //check if the image looks to have a plant
-                            Log.d("IdentifyActivity","THIS IS A PLANT")
-                         var sortedList =  cloudVisionData().imageDataFilter(labels) //Sort the vision data
-
-                            val intent = Intent(this, ProfileActivity::class.java)
-                           // intent.putExtra("totalSize", sortedList.size)
-
-                          // var testtest =  ArrayList(sortedList)
-
-                            ///Create arraylist from sortedList
-                           // var testList: MutableList<String!> = mutableListOf()
-                            var counter = -1
-                            var testList = ArrayList<String>()
-                            for (label in sortedList) {
-                                testList.add(counter + 1, label.text)
-                                testList.add(counter + 1, label.entityId.toString())
-                                testList.add(counter + 1, label.confidence.toString())
+                            Log.d("IdentifyActivity", "THIS IS A PLANT")
+                                  saveImageToFirebase()     //save the image to firebase
+                                var sortedList = cloudVisionData().imageDataFilter(labels) //Sort the vision data
+                                  passStringNewActivity(sortedList)//Pass the data to new activity & change activity
+                            } else {
+                                Log.d("IdentifyActivity", "NOT A PLANT")
+                                Toast.makeText(this, "NOT A PLANT BOI", Toast.LENGTH_SHORT).show()
                             }
-                            var b = Bundle()
-                            b.putStringArrayList("test", testList)
-                            intent.putExtras(b)
-                            startActivity(intent)
-                            //intent.putParcelableArrayListExtra("test", ArrayList(testList))
 
-
-
-                            startActivity(intent)
-
-                            Log.d("IdentifyActivity","${sortedList.size}")/////////////////////////////////////////////////////////////////////////////
-                        }
-                        else {
-                            Log.d("IdentifyActivity", "NOT A PLANT")
-                            Toast.makeText(this, "NOT A PLANT BOI", Toast.LENGTH_SHORT).show()
-                        }
                     }
                     .addOnFailureListener { e ->
                         Log.d("IdentifyActivity", "Something went wrong : ${e.message}")
@@ -112,6 +87,37 @@ class IdentifyActivity : AppCompatActivity() {
         }
     }
 
+
+
+    private fun saveImageToFirebase(){
+        if (selectedPhotoUri == null)return
+        val filename = UUID.randomUUID().toString()
+        val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
+
+        ref.putFile(selectedPhotoUri!!).addOnSuccessListener {
+            Log.d("IdentifyActivity", "Photo Saved!")
+        }
+            .addOnFailureListener{
+                Log.d("IdentifyActivity", "Something went wrong with photo save")
+            }
+    }
+
+
+
+    private fun passStringNewActivity(sortedList: MutableList<FirebaseVisionImageLabel>){ //Passes List into ArrayList, then sends that array to the new activity. Changing the activity
+        val intent = Intent(this, ProfileActivity::class.java)
+        var counter = -1
+        var stringList = ArrayList<String>()
+        for (label in sortedList) {
+            stringList.add(counter + 1, label.text)
+            stringList.add(counter + 1, label.entityId.toString())
+            stringList.add(counter + 1, label.confidence.toString())
+        }
+        var b = Bundle()
+        b.putStringArrayList("identifications", stringList)
+        intent.putExtras(b)
+        startActivity(intent)//Change to the new activity
+    }
 
 
 

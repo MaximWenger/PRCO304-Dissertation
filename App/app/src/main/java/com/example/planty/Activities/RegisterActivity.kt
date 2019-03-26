@@ -83,7 +83,7 @@ class RegisterActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
 
-        val user = User(Username, uid) //Creating new User object, to populate Firebase with
+        val user = User(Username) //Creating new User object, to populate Firebase with
 
         ref.setValue(user).addOnSuccessListener { //Saving the User object to the Firebase database.
             Log.d("RegisterActivity", "Saved username and unique identifer to the database")
