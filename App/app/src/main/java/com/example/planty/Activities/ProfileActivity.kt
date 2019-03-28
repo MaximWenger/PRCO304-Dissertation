@@ -1,13 +1,17 @@
 package com.example.planty.Activities
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.example.planty.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -17,6 +21,24 @@ class ProfileActivity : AppCompatActivity() {
 
         verifyLoggedIn()//check the User is logged in
 
+        getUserData()
+
+    }
+
+    private fun getUserData(){
+        val uid = FirebaseAuth.getInstance().uid
+       val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+        ref.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot) {
+                p0.children.forEach{
+                    Log.d("profileActivity",it.toString())
+                }
+            }
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+                //VIDEO 4 @ 30minutes
     }
 
     private fun verifyLoggedIn(){ //Check if the User is already logged in, if not, return User to registerActivity

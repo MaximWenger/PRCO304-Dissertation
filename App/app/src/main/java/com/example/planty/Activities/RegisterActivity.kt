@@ -1,7 +1,7 @@
 package com.example.planty.Activities
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -94,6 +94,8 @@ class RegisterActivity : AppCompatActivity() {
                 Log.d("RegisterActivity", "Something went wrong ${it.message}")
             }
     }
+
+
 
 
 }
