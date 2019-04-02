@@ -12,7 +12,8 @@ import android.view.MenuItem
 import android.widget.Toast
 import com.example.planty.R
 import com.example.planty.classes.ImageUID
-import com.example.planty.classes.cloudVisionData
+import com.example.planty.classes.CloudVisionData
+import com.example.planty.classes.DateTime
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ml.vision.FirebaseVision
@@ -69,10 +70,10 @@ class IdentifyActivity : AppCompatActivity() {
                 val labeler = FirebaseVision.getInstance().getCloudImageLabeler()
                 labeler.processImage(image)
                     .addOnSuccessListener { labels ->
-                        if (cloudVisionData().confirmPlant(labels)) { //check if the image looks to have a plant
+                        if (CloudVisionData().confirmPlant(labels)) { //check if the image looks to have a plant
                             Log.d("IdentifyActivity", "THIS IS A PLANT")
                                   saveImageToFirebase()     //save the image to firebase
-                                var sortedList = cloudVisionData().imageDataFilter(labels) //Sort the vision data
+                                var sortedList = CloudVisionData().imageDataFilter(labels) //Sort the vision data
                                   passStringNewActivity(sortedList)//Pass the data to new activity & change activity
                             } else {
                                 Log.d("IdentifyActivity", "NOT A PLANT")
@@ -108,9 +109,7 @@ class IdentifyActivity : AppCompatActivity() {
 
     private fun saveImageIDToUserFirebase(filename: String, path: String?){//Saves the saved image details, to Firebase database (to associate the image to the user)
         Log.d("IdentifyActivity","GOT TO SAVE IMAGE ID")
-        val dateFormat = SimpleDateFormat("dd/M/yyy hh:mm:ss")
-        val dateTime = dateFormat.format(Date())
-
+        val dateTime = DateTime().getDateTime() //Returns dateTime
         val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
         val ref = FirebaseDatabase.getInstance().getReference("/images/${filename}")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
         val imageUID = ImageUID(uid, path, dateTime)

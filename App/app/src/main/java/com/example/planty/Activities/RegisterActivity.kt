@@ -6,10 +6,13 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.example.planty.R
+import com.example.planty.classes.DateTime
 import com.example.planty.classes.User
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.database.FirebaseDatabase
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class RegisterActivity : AppCompatActivity() {
@@ -83,7 +86,9 @@ class RegisterActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
 
-        val user = User(Username, role) //Creating new User object, to populate Firebase with
+        val dateTime = DateTime().getDateTime()
+
+        val user = User(Username, role, dateTime) //Creating new User object, to populate Firebase with
 
         ref.setValue(user).addOnSuccessListener { //Saving the User object to the Firebase database.
             Log.d("RegisterActivity", "Saved username and unique identifer to the database")
@@ -94,6 +99,8 @@ class RegisterActivity : AppCompatActivity() {
                 Log.d("RegisterActivity", "Something went wrong ${it.message}")
             }
     }
+
+
 
 
 

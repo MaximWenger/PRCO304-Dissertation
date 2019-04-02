@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
 import java.lang.Exception
 
- class cloudVisionData {//Used to confirm and sort the data, returned by Google Cloud Vision
+ class CloudVisionData {//Used to confirm and sort the data, returned by Google Cloud Vision
      val toRemoveLibrary = arrayOf("Petal","Plant", "Yellow", "Flower", "Flowering Plant", "Spring", "Wildflower") //Used to hold strings of identification labels to be removed
      val toConfirmPlantLibrary = arrayOf("Petal","Plant", "Flower", "Flowering Plant", "Wildflower") //Used to confirm the identification is a plant
 
