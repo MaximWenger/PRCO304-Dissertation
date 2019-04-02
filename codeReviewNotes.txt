@@ -1,0 +1,30 @@
+Save everything to firebase, then reload.
+
+Have more fields for the user, role! 
+
+Email validation
+
+-------------
+Update the use-case diagram, with the search function for each plant (Types of plants, trees, flowers)
+The search function on the google maps is a big thing 
+
+-----------
+
+Application for selling plants, take a pocture of a plant, find a shop which sells that type of plant. 
+Fuzzy search for the search, so if a use doesnt know how to spell the plant corrrectly, it still works.
+
+Need to make shop locations for google maps, types of plants which each shop sells. 
+
+Spacial databases, 
+
+---------
+Report, strong case as to why i'm using that API, whats so special, why am I using it, instead of starting from scratch 
+
+--------
+
+Write down the functional requirments so I KNOW what I'm actually doing. Do another class diagram with a littlke abstract (to say what i'm doing)
+Class diagram for the backend, then continue on the front end with all the geo-locational 
+
+ISAD358 (look at course) ISAD361
+
+Write a bit about why I chose those techs, why I didnt use oracle and why I used firebase instead

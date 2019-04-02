@@ -12,6 +12,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.android.synthetic.main.activity_profile.*
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -32,6 +33,11 @@ class ProfileActivity : AppCompatActivity() {
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach{
                     Log.d("profileActivity",it.toString())
+                    profile_userEmail.text = FirebaseAuth.getInstance().currentUser?.email
+
+
+
+
                 }
             }
             override fun onCancelled(p0: DatabaseError) {

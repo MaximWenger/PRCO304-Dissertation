@@ -21,6 +21,7 @@ import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_identify.*
 import java.lang.Exception
+import java.text.SimpleDateFormat
 import java.util.*
 
 class IdentifyActivity : AppCompatActivity() {
@@ -91,25 +92,28 @@ class IdentifyActivity : AppCompatActivity() {
 
 
 
-    private fun saveImageToFirebase(){
+    private fun saveImageToFirebase(){ //Used to save the user image to firebase storage
         if (selectedPhotoUri == null)return
         val filename = UUID.randomUUID().toString()
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
 
         ref.putFile(selectedPhotoUri!!).addOnSuccessListener {
             Log.d("IdentifyActivity", "Photo Saved!")
-            saveImageIDToUserFirebase(filename)
+            saveImageIDToUserFirebase(filename, it.metadata?.path)
         }
             .addOnFailureListener{
                 Log.d("IdentifyActivity", "Something went wrong with photo save")
             }
     }
 
-    private fun saveImageIDToUserFirebase(filename: String){//Saves the user photo to Firebase
+    private fun saveImageIDToUserFirebase(filename: String, path: String?){//Saves the saved image details, to Firebase database (to associate the image to the user)
         Log.d("IdentifyActivity","GOT TO SAVE IMAGE ID")
+        val dateFormat = SimpleDateFormat("dd/M/yyy hh:mm:ss")
+        val dateTime = dateFormat.format(Date())
+
         val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
-        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid/images/")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
-        val imageUID = ImageUID(filename)
+        val ref = FirebaseDatabase.getInstance().getReference("/images/${filename}")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
+        val imageUID = ImageUID(uid, path, dateTime)
          ref.setValue(imageUID).addOnSuccessListener {
             Log.d("IdentifyActivity", "UID saved")
         }
