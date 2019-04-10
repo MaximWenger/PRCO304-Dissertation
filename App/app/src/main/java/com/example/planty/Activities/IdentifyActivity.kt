@@ -77,9 +77,8 @@ class IdentifyActivity : AppCompatActivity() {
                                   passStringNewActivity(sortedList)//Pass the data to new activity & change activity
                             } else {
                                 Log.d("IdentifyActivity", "NOT A PLANT")
-                                Toast.makeText(this, "NOT A PLANT BOI", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "This photo is not a plant", Toast.LENGTH_SHORT).show()
                             }
-
                     }
                     .addOnFailureListener { e ->
                         Log.d("IdentifyActivity", "Something went wrong : ${e.message}")
@@ -189,7 +188,7 @@ class IdentifyActivity : AppCompatActivity() {
     }
 
     private fun navToProfileActivity(){
-        val intent = Intent(this, ProfileActivity::class.java) //Populate intent with new activity class
+        val intent = Intent(this, IdentifiedActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
     }
