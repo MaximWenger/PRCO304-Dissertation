@@ -73,8 +73,9 @@ class IdentifyActivity : AppCompatActivity() {
                         if (CloudVisionData().confirmPlant(labels)) { //check if the image looks to have a plant
                             Log.d("IdentifyActivity", "THIS IS A PLANT")
                                   saveImageToFirebase()     //save the image to firebase
+                            var baseIdent = CloudVisionData().baseImageIdentFilter(labels)//Return base identification
                                 var sortedList = CloudVisionData().imageDataFilter(labels) //Sort the vision data
-                                  passStringNewActivity(sortedList)//Pass the data to new activity & change activity
+                                  passStringNewActivity(sortedList, baseIdent)//Pass the data to new activity & change activity
                             } else {
                                 Log.d("IdentifyActivity", "NOT A PLANT")
                                 Toast.makeText(this, "This photo is not a plant", Toast.LENGTH_SHORT).show()
@@ -89,6 +90,7 @@ class IdentifyActivity : AppCompatActivity() {
             Log.d("IdentifyActivity", "Image processing broke = ${e.message}")
         }
     }
+
 
 
 
@@ -120,7 +122,7 @@ class IdentifyActivity : AppCompatActivity() {
 
 
 
-    private fun passStringNewActivity(sortedList: MutableList<FirebaseVisionImageLabel>){ //Passes List into ArrayList, then sends that array to the new activity. Changing the activity
+    private fun passStringNewActivity(sortedList: MutableList<FirebaseVisionImageLabel>, baseIdent: String){ //Passes List into ArrayList, then sends that array to the new activity. Changing the activity
         val intent = Intent(this, IdentifiedActivity::class.java)
         var counter = -1
         var stringList = ArrayList<String>()
@@ -132,6 +134,7 @@ class IdentifyActivity : AppCompatActivity() {
         var b = Bundle()
         b.putStringArrayList("identifications", stringList)
         intent.putExtras(b)
+        intent.putExtra("baseIdent", baseIdent)
         startActivity(intent)//Change to the new activity
     }
 

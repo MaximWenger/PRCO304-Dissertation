@@ -27,6 +27,9 @@ class IdentifiedActivity : AppCompatActivity() {
 try {
     val identifiedString = intent.getStringArrayListExtra("identifications")
     populateIDRows(identifiedString)
+
+    val baseIdent = intent.getStringExtra("baseIdent")
+    Log.d("IdentifiedActivity", "BASE IDENT == ${baseIdent}")
 }
 catch (e: Exception){
     Log.d("IdentifiedActivity", "Create Error = ${e.message}")
