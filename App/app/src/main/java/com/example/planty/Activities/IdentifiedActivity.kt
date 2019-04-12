@@ -24,6 +24,7 @@ class IdentifiedActivity : AppCompatActivity() {
         supportActionBar?.title ="Identified" //change activity Title
 
         verifyLoggedIn()
+
 try {
     val identifiedString = intent.getStringArrayListExtra("identifications")
     populateIDRows(identifiedString)
@@ -31,10 +32,28 @@ try {
     val baseIdent = intent.getStringExtra("baseIdent")
     Log.d("IdentifiedActivity", "BASE IDENT == ${baseIdent}")
 }
+
 catch (e: Exception){
     Log.d("IdentifiedActivity", "Create Error = ${e.message}")
 }
+        identified_button0.setOnClickListener {
+            //get ident for 1
+            //get base ident
+
+            navToMapsActivity()
+        }
+        identified_button1.setOnClickListener {
+            navToMapsActivity()
+        }
+        identified_button2.setOnClickListener {
+            navToMapsActivity()
+        }
+        identified_selfIdentify.setOnClickListener {
+            Log.d("IdentifiedActivity","Self Idenfity Clicked")
+        }
     }
+
+
 
     private fun populateIDRows(identifiedString: ArrayList<String>){//Populate the text fields
         if (identifiedString.size == 3) { //If only one identification
