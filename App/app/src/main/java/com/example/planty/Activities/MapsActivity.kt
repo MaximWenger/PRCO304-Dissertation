@@ -3,9 +3,11 @@ package com.example.planty.Activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.example.planty.R
+import com.example.planty.classes.Branch
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -14,6 +16,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+
+import kotlinx.android.synthetic.main.activity_profile.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -41,12 +49,50 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
+
+
+
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(50.375356, -4.140875)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        getMarkers(googleMap)
+
+
+
+    }
+
+
+
+    fun getMarkers(googleMap: GoogleMap){
+        mMap = googleMap
+        val ref = FirebaseDatabase.getInstance().getReference("/branches/")
+        ref.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot) {
+
+
+                p0.children.forEach{
+              //  Log.d("MapsActivity",it.toString())
+                //  Log.d("MapsActivity","BRANCH == ${currentBranch?.longitude.toString()}")
+                    val currentBranch = it.getValue(Branch::class.java)
+
+                    val longitude = currentBranch?.longitude!!.toDouble()
+                    val latitude = currentBranch?.latitude!!.toDouble()
+                    val branchName = currentBranch?.branchName
+
+                    val branch = LatLng(latitude, longitude)
+
+                    mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
+                     Log.d("MapsActivity","ADDED MARK")
+
+                }
+            }
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean { //Create the menu
