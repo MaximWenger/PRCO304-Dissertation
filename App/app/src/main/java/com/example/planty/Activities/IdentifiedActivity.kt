@@ -8,14 +8,19 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.example.planty.R
+import com.example.planty.classes.DateTime
+import com.example.planty.classes.Identified
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_identified.*
 import java.lang.Exception
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.ArrayList
+import java.util.*
 
 class IdentifiedActivity : AppCompatActivity() {
+    private var baseIdent = ""
+    private var identifiedString = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,38 +29,79 @@ class IdentifiedActivity : AppCompatActivity() {
         supportActionBar?.title ="Identified" //change activity Title
 
         verifyLoggedIn()
+        populateBaseIdent()
+        populateIdentifiedString()
+        populateIDRows()
 
-try {
-    val identifiedString = intent.getStringArrayListExtra("identifications")
-    populateIDRows(identifiedString)
+        identified_button0.setOnClickListener {//If ID 0 clicked
 
-    val baseIdent = intent.getStringExtra("baseIdent")
-    Log.d("IdentifiedActivity", "BASE IDENT == ${baseIdent}")
-}
-
-catch (e: Exception){
-    Log.d("IdentifiedActivity", "Create Error = ${e.message}")
-}
-        identified_button0.setOnClickListener {
-            //get ident for 1
-            //get base ident
-
-            navToMapsActivity()
+            val plantName = identified_name_textview0.text.toString()
+            saveIdentChangeActiv(plantName)
         }
-        identified_button1.setOnClickListener {
-            navToMapsActivity()
+        identified_button1.setOnClickListener {//If ID 1 clicked
+            val plantName = identified_name_textview1.text.toString()
+            saveIdentChangeActiv(plantName)
         }
-        identified_button2.setOnClickListener {
-            navToMapsActivity()
+        identified_button2.setOnClickListener {//If ID 2 clicked
+            val plantName = identified_name_textview2.text.toString()
+            saveIdentChangeActiv(plantName)
         }
         identified_selfIdentify.setOnClickListener {
             Log.d("IdentifiedActivity","Self Idenfity Clicked")
         }
     }
 
+    private fun saveIdentChangeActiv(plantName: String){ //Uses the givenPlant name & saves the identifed Image & changes activity
+        val correctIdent = getCorrectIdent(plantName)
+        saveIdentToDatabase(correctIdent)
+        navToMapsActivity()
+    }
 
 
-    private fun populateIDRows(identifiedString: ArrayList<String>){//Populate the text fields
+    private fun getCorrectIdent(plantName: String): Identified {//returns identified object, populated with details of identifed plant
+        val uid = FirebaseAuth.getInstance().uid.toString()
+        val dateTime = DateTime().getDateTime()
+        val identImageName = getFileName()
+        val correctIdent = Identified(uid, dateTime, plantName, baseIdent, identImageName) //populate Identified object
+        return correctIdent //return identified object
+    }
+
+    private fun saveIdentToDatabase(correctIdent: Identified){//Save correct identification to database
+        val uuid = UUID.randomUUID().toString() //Produce unique ID for ident file name
+        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uuid}")
+        ref.setValue(correctIdent)
+    }
+
+    private fun populateBaseIdent(){
+        try {
+            baseIdent = intent.getStringExtra("baseIdent")
+        }catch (e: Exception){
+            Log.d("IdentifiedActivity", "populateBaseIdent Error = ${e.message}")
+        }
+    }
+
+    private fun populateIdentifiedString(){
+        try {
+            identifiedString = intent.getStringArrayListExtra("identifications")
+        }catch (e: Exception){
+            Log.d("IdentifiedActivity", "populatedIdentifedString Error = ${e.message}")
+        }
+    }
+
+    private fun getFileName(): String { //Return filename (UUID) for saved image
+        var filename = ""
+        try {
+            filename = intent.getStringExtra("fileName")
+
+        }catch (e: Exception){
+            Log.d("IdentifiedActivity", "getFileName Error = ${e.message}")
+        }
+        return filename
+    }
+
+
+
+    private fun populateIDRows(){//Populate the text fields
         if (identifiedString.size == 3) { //If only one identification
             Log.d("IdentifiedActivity", "Got to 3")
             populateIdent0(identifiedString)

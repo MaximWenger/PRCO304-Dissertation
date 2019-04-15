@@ -27,6 +27,7 @@ import java.util.*
 
 class IdentifyActivity : AppCompatActivity() {
     var selectedPhotoUri: Uri? = null //Stores photo
+    private var filename = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,19 +97,19 @@ class IdentifyActivity : AppCompatActivity() {
 
     private fun saveImageToFirebase(){ //Used to save the user image to firebase storage
         if (selectedPhotoUri == null)return
-        val filename = UUID.randomUUID().toString()
+        filename = UUID.randomUUID().toString() //Populate filename with new UUID
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
 
         ref.putFile(selectedPhotoUri!!).addOnSuccessListener {
             Log.d("IdentifyActivity", "Photo Saved!")
-            saveImageIDToUserFirebase(filename, it.metadata?.path)
+            saveImageIDToUserFirebase(it.metadata?.path)
         }
             .addOnFailureListener{
                 Log.d("IdentifyActivity", "Something went wrong with photo save")
             }
     }
 
-    private fun saveImageIDToUserFirebase(filename: String, path: String?){//Saves the saved image details, to Firebase database (to associate the image to the user)
+    private fun saveImageIDToUserFirebase(path: String?){//Saves the saved image details, to Firebase database (to associate the image to the user)
         Log.d("IdentifyActivity","GOT TO SAVE IMAGE ID")
         val dateTime = DateTime().getDateTime() //Returns dateTime
         val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
@@ -135,6 +136,7 @@ class IdentifyActivity : AppCompatActivity() {
         b.putStringArrayList("identifications", stringList)
         intent.putExtras(b)
         intent.putExtra("baseIdent", baseIdent)
+        intent.putExtra("fileName",filename)
         startActivity(intent)//Change to the new activity
     }
 
