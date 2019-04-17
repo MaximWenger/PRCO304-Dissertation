@@ -11,9 +11,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import com.example.planty.R
-import com.example.planty.classes.ImageUID
-import com.example.planty.classes.CloudVisionData
-import com.example.planty.classes.DateTime
+import com.example.planty.Objects.UserImage
+import com.example.planty.Classes.CloudVisionData
+import com.example.planty.Classes.DateTime
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ml.vision.FirebaseVision
@@ -22,7 +22,6 @@ import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_identify.*
 import java.lang.Exception
-import java.text.SimpleDateFormat
 import java.util.*
 
 class IdentifyActivity : AppCompatActivity() {
@@ -98,11 +97,13 @@ class IdentifyActivity : AppCompatActivity() {
     private fun saveImageToFirebase(){ //Used to save the user image to firebase storage
         if (selectedPhotoUri == null)return
         filename = UUID.randomUUID().toString() //Populate filename with new UUID
+        Log.d("IdentifyActivity2","filename on create == ${filename}")
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
-
         ref.putFile(selectedPhotoUri!!).addOnSuccessListener {
             Log.d("IdentifyActivity", "Photo Saved!")
-            saveImageIDToUserFirebase(it.metadata?.path)
+            ref.downloadUrl.addOnSuccessListener {
+                saveImageIDToUserFirebase(it.toString()) //Converts the img URL to string
+            }
         }
             .addOnFailureListener{
                 Log.d("IdentifyActivity", "Something went wrong with photo save")
@@ -113,8 +114,9 @@ class IdentifyActivity : AppCompatActivity() {
         Log.d("IdentifyActivity","GOT TO SAVE IMAGE ID")
         val dateTime = DateTime().getDateTime() //Returns dateTime
         val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
-        val ref = FirebaseDatabase.getInstance().getReference("/images/${filename}")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
-        val imageUID = ImageUID(uid, path, dateTime)
+        Log.d("IdentifyActivity2","filename on save == ${filename}")
+        val ref = FirebaseDatabase.getInstance().getReference("/userImages/$filename")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
+        val imageUID = UserImage(uid, path, dateTime)
          ref.setValue(imageUID).addOnSuccessListener {
             Log.d("IdentifyActivity", "UID saved")
         }

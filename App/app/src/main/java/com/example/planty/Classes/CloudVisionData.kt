@@ -1,4 +1,4 @@
-package com.example.planty.classes
+package com.example.planty.Classes
 
 import android.util.Log
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel

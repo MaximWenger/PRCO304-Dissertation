@@ -8,15 +8,21 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.example.planty.R
-import com.example.planty.classes.DateTime
-import com.example.planty.classes.Identified
+import com.example.planty.Classes.DateTime
+import com.example.planty.Objects.Identified
+import com.example.planty.Objects.UserImage
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_identified.*
 import java.lang.Exception
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
+import kotlin.concurrent.schedule
 
 class IdentifiedActivity : AppCompatActivity() {
     private var baseIdent = ""
@@ -32,6 +38,10 @@ class IdentifiedActivity : AppCompatActivity() {
         populateBaseIdent()
         populateIdentifiedString()
         populateIDRows()
+        populateUserImage()
+
+
+
 
         identified_button0.setOnClickListener {//If ID 0 clicked
 
@@ -47,7 +57,44 @@ class IdentifiedActivity : AppCompatActivity() {
             saveIdentChangeActiv(plantName)
         }
         identified_selfIdentify.setOnClickListener {
-            Log.d("IdentifiedActivity","Self Idenfity Clicked")
+            Log.d("IdentifiedActivity","Self Identity Clicked")
+        }
+    }
+
+
+
+    private fun populateUserImage(){//used to populate the user image at the top of the screen
+        try {
+            var imageName = getImageFileName()
+            val ref = FirebaseDatabase.getInstance().getReference("/userImages")
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(p0: DataSnapshot) {
+                  var retryLoad = true //Used to determine if the image has been loaded yet
+                     p0.children.forEach {
+                         if (it.key.toString() == imageName) { //Compares the imageName to the Id name, to confirm the correct image details are loaded
+                             val currentImage = it.getValue(UserImage::class.java)
+                             val imgLoc = currentImage?.imageLoc
+                             Picasso.get().load(imgLoc).into(identified_userImage)
+                             retryLoad = false
+                         }
+                    }
+                    retryImageLoad(retryLoad)//If image is not loaded, retry in 500ms
+                }
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d("IdentifiedActivity", "Error Loading main image = ${p0.message}")
+                }
+            })
+        }
+        catch(e: Exception){
+            Log.d("IdentifiedActivity","populateUserImage Error = ${e.message}")
+        }
+    }
+
+    private fun retryImageLoad(retryLoad: Boolean){//Attempts to reload the image ever 500ms, if the image is not yet saved to firebase
+        if (retryLoad == true){ //Must be re-attempted untill the file is found, this function can load faster than the file is saved to firebase
+            Timer("Retry Image Load", false).schedule(500) {
+                populateUserImage()
+            }
         }
     }
 
@@ -61,8 +108,14 @@ class IdentifiedActivity : AppCompatActivity() {
     private fun getCorrectIdent(plantName: String): Identified {//returns identified object, populated with details of identifed plant
         val uid = FirebaseAuth.getInstance().uid.toString()
         val dateTime = DateTime().getDateTime()
-        val identImageName = getFileName()
-        val correctIdent = Identified(uid, dateTime, plantName, baseIdent, identImageName) //populate Identified object
+        val identImageName = getImageFileName()
+        val correctIdent = Identified(
+            uid,
+            dateTime,
+            plantName,
+            baseIdent,
+            identImageName
+        ) //populate Identified object
         return correctIdent //return identified object
     }
 
@@ -88,13 +141,13 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
-    private fun getFileName(): String { //Return filename (UUID) for saved image
+    private fun getImageFileName(): String { //Return filename (UUID) for saved image
         var filename = ""
         try {
             filename = intent.getStringExtra("fileName")
 
         }catch (e: Exception){
-            Log.d("IdentifiedActivity", "getFileName Error = ${e.message}")
+            Log.d("IdentifiedActivity", "getImageFileName Error = ${e.message}")
         }
         return filename
     }
@@ -269,3 +322,13 @@ class IdentifiedActivity : AppCompatActivity() {
 }
 
 
+/*
+---------
+*/
+/*                val currentImage = p0.getValue(UserImage::class.java)
+            Log.d("IdentifiedActivity", "current Image to String = ${currentImage.toString()}")
+            val imgLoc = currentImage?.imageLoc
+            //val imgLoc = "https://firebasestorage.googleapis.com/v0/b/kotlinplanty.appspot.com/o/images%2F1d9e3e14-f3b6-4c97-8737-9b95eed88ddc?alt=media&token=d67b6883-e41d-4001-a86c-ef1fef77f92f"
+            Log.d("IdentifiedActivity", "Image loc = ${imgLoc.toString()}")
+            Log.d("IdentifiedActivity", "ImageName = ${imageName}")
+            Picasso.get().load(imgLoc).into(identified_userImage)*/

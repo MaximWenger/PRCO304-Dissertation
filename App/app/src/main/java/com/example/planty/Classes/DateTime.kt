@@ -1,4 +1,4 @@
-package com.example.planty.classes
+package com.example.planty.Classes
 
 import java.text.SimpleDateFormat
 import java.util.*

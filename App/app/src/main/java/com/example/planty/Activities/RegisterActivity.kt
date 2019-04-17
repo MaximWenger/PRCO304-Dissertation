@@ -6,13 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.example.planty.R
-import com.example.planty.classes.DateTime
-import com.example.planty.classes.User
+import com.example.planty.Classes.DateTime
+import com.example.planty.Objects.User
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.database.FirebaseDatabase
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class RegisterActivity : AppCompatActivity() {
@@ -88,7 +86,11 @@ class RegisterActivity : AppCompatActivity() {
 
         val dateTime = DateTime().getDateTime()
 
-        val user = User(Username, role, dateTime) //Creating new User object, to populate Firebase with
+        val user = User(
+            Username,
+            role,
+            dateTime
+        ) //Creating new User object, to populate Firebase with
 
         ref.setValue(user).addOnSuccessListener { //Saving the User object to the Firebase database.
             Log.d("RegisterActivity", "Saved username and unique identifer to the database")
