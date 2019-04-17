@@ -63,22 +63,13 @@ class IdentifiedActivity : AppCompatActivity() {
 
 
 
+
     private fun populateUserImage(){//used to populate the user image at the top of the screen
         try {
-            var imageName = getImageFileName()
             val ref = FirebaseDatabase.getInstance().getReference("/userImages")
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(p0: DataSnapshot) {
-                  var retryLoad = true //Used to determine if the image has been loaded yet
-                     p0.children.forEach {
-                         if (it.key.toString() == imageName) { //Compares the imageName to the Id name, to confirm the correct image details are loaded
-                             val currentImage = it.getValue(UserImage::class.java)
-                             val imgLoc = currentImage?.imageLoc
-                             Picasso.get().load(imgLoc).into(identified_userImage)
-                             retryLoad = false
-                         }
-                    }
-                    retryImageLoad(retryLoad)//If image is not loaded, retry in 500ms
+                    getImgLoc(p0)
                 }
                 override fun onCancelled(p0: DatabaseError) {
                     Log.d("IdentifiedActivity", "Error Loading main image = ${p0.message}")
@@ -90,12 +81,27 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
-    private fun retryImageLoad(retryLoad: Boolean){//Attempts to reload the image ever 500ms, if the image is not yet saved to firebase
-        if (retryLoad == true){ //Must be re-attempted untill the file is found, this function can load faster than the file is saved to firebase
+    private fun getImgLoc(p0: DataSnapshot){
+        var imageName = getImageFileName()
+        var retryLoad = true //Used to determine if the image has been loaded yet
+        p0.children.forEach {
+            if (it.key.toString() == imageName) { //Compares the imageName to the Id name, to confirm the correct image details are loaded
+                val currentImage = it.getValue(UserImage::class.java)
+                val imgLoc = currentImage?.imageLoc
+                Picasso.get().load(imgLoc).into(identified_userImage)
+                retryLoad = false
+            }
+        }
+        if (retryLoad == true) {
+            retryImageLoad()//If image is not loaded, retry in 500ms
+        }
+    }
+
+    private fun retryImageLoad(){//Attempts to reload the image ever 500ms, if the image is not yet saved to firebase
+       //Must be re-attempted untill the file is found, this function can load faster than the file is saved to firebase
             Timer("Retry Image Load", false).schedule(500) {
                 populateUserImage()
             }
-        }
     }
 
     private fun saveIdentChangeActiv(plantName: String){ //Uses the givenPlant name & saves the identifed Image & changes activity
@@ -314,7 +320,7 @@ class IdentifiedActivity : AppCompatActivity() {
         startActivity(intent) //Change to new class
     }
 
-    private fun navToIdentifyActivity(){
+    private fun navToIdentifyActivity() {
         val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
