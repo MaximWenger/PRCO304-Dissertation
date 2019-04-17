@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.example.planty.Classes.DataSort
 import com.example.planty.R
 import com.example.planty.Classes.DateTime
 import com.example.planty.Objects.Identified
@@ -203,8 +204,8 @@ class IdentifiedActivity : AppCompatActivity() {
 
     private fun populateIdent0(identifiedString: ArrayList<String>){//Populate the textfields with the identification information
         try {
-            var singleIdent = getSingleIdent(identifiedString, 0)//Make a local copy of the first three items
-            var confidence = convertTo2dp(singleIdent.get(0))//Convert string to 2dp
+            var singleIdent = DataSort().getSingleIdent(identifiedString, 0)//Make a local copy of the first three items
+            var confidence = DataSort().convertTo2dp(singleIdent.get(0))//Convert string to 2dp
             identified_name_textview0.text = singleIdent.get(2)
             identified_confidence0.text = confidence
         }
@@ -215,8 +216,8 @@ class IdentifiedActivity : AppCompatActivity() {
 
     private fun populateIdent1(identifiedString: ArrayList<String>){//Populate the textfields with the identification information
         try {
-            var singleIdent = getSingleIdent(identifiedString, 3)
-            var confidence = convertTo2dp(singleIdent.get(0))//Convert string to 2dp
+            var singleIdent = DataSort().getSingleIdent(identifiedString, 3)
+            var confidence = DataSort().convertTo2dp(singleIdent.get(0))//Convert string to 2dp
             identified_name_textview1.text = singleIdent.get(2)
             identified_confidence1.text = confidence
         }catch (e: Exception){
@@ -226,8 +227,8 @@ class IdentifiedActivity : AppCompatActivity() {
 
     private fun populateIdent2(identifiedString: ArrayList<String>){//Populate the textfields with the identification information
         try {
-            var singleIdent = getSingleIdent(identifiedString, 6)
-            var confidence = convertTo2dp(singleIdent.get(0))//Convert string to 2dp
+            var singleIdent = DataSort().getSingleIdent(identifiedString, 6)
+            var confidence = DataSort().convertTo2dp(singleIdent.get(0))//Convert string to 2dp
             identified_name_textview2.text = singleIdent.get(2)
             identified_confidence2.text = confidence
         }
@@ -236,28 +237,7 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
-    private fun convertTo2dp(string: String): String{ //Converts a decimal to 2dp, returning a string
-        var origString = string.toDouble()
-        val newString = BigDecimal(origString).setScale(2, RoundingMode.HALF_EVEN)//Round the confidence to 2dp
-        return newString.toString()
-    }
 
-
-
-    private fun getSingleIdent(identifiedString: ArrayList<String>, indexStart: Int) : ArrayList<String>{ //Returns an ArrayList, 3 long from the provided ArrayList
-        var orignalString = identifiedString
-        var newString = ArrayList<String>()
-        var counter = 0
-        var index = indexStart
-        for (item in orignalString){
-            if (counter <= 2) {
-                newString.add(counter, orignalString.get(index))
-                index++
-                counter++
-            }
-        }
-        return newString
-    }
 
     //Show top three reccomendations
     //Populate the static textfields
