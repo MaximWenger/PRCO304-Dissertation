@@ -5,9 +5,9 @@ import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel
 import java.lang.Exception
 
  class CloudVisionData {//Used to confirm and sort the data, returned by Google Cloud Vision
-     val toRemoveLibrary = arrayOf("Petal","Plant", "Yellow", "Flower", "Flowering Plant", "Spring", "Wildflower", "Blue", "Botany", "Spring", "Perennial Plant", "Annual Plant") //Used to hold strings of identification labels to be removed
-     val toConfirmPlantLibrary = arrayOf("Petal","Plant", "Flower", "Flowering Plant", "Wildflower") //Used to confirm the identification is a plant
-     val baseIdentLibrary = arrayOf("Tree", "Flower", "Shrub", "Branch", "Herb")
+     private val toRemoveLibrary = arrayOf("Petal","Plant", "Yellow", "Flower", "Flowering Plant", "Spring", "Wildflower", "Blue", "Botany", "Spring", "Perennial Plant", "Annual Plant") //Used to hold strings of identification labels to be removed
+     private val toConfirmPlantLibrary = arrayOf("Petal","Plant", "Flower", "Flowering Plant", "Wildflower") //Used to confirm the identification is a plant
+     private val baseIdentLibrary = arrayOf("Tree", "Flower", "Shrub", "Branch", "Herb")
 
 
      fun confirmPlant(list: MutableList<FirebaseVisionImageLabel>):Boolean {//Check that atleast one of the unsorted labels matches toConfirmPlantLibrary (Confirming the picture is a plant)
@@ -20,6 +20,11 @@ import java.lang.Exception
          }
          return false //Return false, the image does NOT look to be a plant
      }
+
+     fun getBaseIdentLibrary(): Array<String> {
+         return baseIdentLibrary
+     }
+
 
      fun imageDataFilter(list: MutableList<FirebaseVisionImageLabel>): MutableList<FirebaseVisionImageLabel> { //Returns sorted list, removing specific words
          val removeLibrary = 0

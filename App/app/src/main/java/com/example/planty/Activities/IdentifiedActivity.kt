@@ -33,7 +33,7 @@ class IdentifiedActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identified)
 
-        supportActionBar?.title ="Identified" //change activity Title
+        supportActionBar?.title ="Identified!" //change activity Title
 
         verifyLoggedIn()
         populateBaseIdent()
@@ -58,7 +58,7 @@ class IdentifiedActivity : AppCompatActivity() {
             saveIdentChangeActiv(plantName)
         }
         identified_selfIdentify.setOnClickListener {
-            Log.d("IdentifiedActivity","Self Identity Clicked")
+            navToSelfIdentifyActivity()
         }
     }
 
@@ -116,12 +116,14 @@ class IdentifiedActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().uid.toString()
         val dateTime = DateTime().getDateTime()
         val identImageName = getImageFileName()
+        val defaultDesc = ""
         val correctIdent = Identified(
             uid,
             dateTime,
             plantName,
             baseIdent,
-            identImageName
+            identImageName,
+            defaultDesc
         ) //populate Identified object
         return correctIdent //return identified object
     }
@@ -302,6 +304,12 @@ class IdentifiedActivity : AppCompatActivity() {
 
     private fun navToIdentifyActivity() {
         val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
+        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        startActivity(intent) //Change to new class
+    }
+
+    private fun navToSelfIdentifyActivity(){
+        val intent = Intent(this, SelfIdentifyActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
     }
