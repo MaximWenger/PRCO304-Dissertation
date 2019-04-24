@@ -40,6 +40,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_self_identify)
+        supportActionBar?.title ="Self Identify" //change activity Title
        // setSupportActionBar(toolbar)
 
             verifyLoggedIn()
@@ -49,10 +50,17 @@ class SelfIdentifyActivity : AppCompatActivity() {
         SelfIdentify_Save_Button.setOnClickListener{
             if (checkPopulatedFields()){
                 saveIdentification()
-
+                navToMapsActivityWithIdent()
             }
 
         }
+    }
+
+    private fun navToMapsActivityWithIdent(){
+        val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
+        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        intent.putExtra("baseIdent",plantType)
+        startActivity(intent) //Change to new class
     }
 
     private fun saveIdentification(){//Produces a Identified object and saves to the database

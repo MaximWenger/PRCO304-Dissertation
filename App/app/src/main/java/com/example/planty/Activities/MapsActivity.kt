@@ -20,6 +20,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.lang.Exception
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -60,6 +61,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
+    }
+
+    private fun getBaseIdent(): String { //Used to display marker points if the specific plant name is not found
+        var baseIdent = ""
+        try {
+            baseIdent = intent.getStringExtra("baseIdent")
+
+        }catch (e: Exception){
+            Log.d("MapsActivity", "getBaseIdent Error = ${e.message}")
+        }
+        return baseIdent
+    }
+
+    private fun getPlantName(): String {
+        var plantName = ""
+        try {
+            plantName = intent.getStringExtra("plantName")
+
+        }catch (e: Exception){
+            Log.d("MapsActivity", "getPlantName Error = ${e.message}")
+        }
+        return plantName
     }
 
 

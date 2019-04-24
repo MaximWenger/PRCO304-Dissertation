@@ -49,18 +49,29 @@ class IdentifiedActivity : AppCompatActivity() {
 
             val plantName = identified_name_textview0.text.toString()
             saveIdentChangeActiv(plantName)
+            navToMapsActivityWithIdent(plantName)
         }
         identified_button1.setOnClickListener {//If ID 1 clicked
             val plantName = identified_name_textview1.text.toString()
             saveIdentChangeActiv(plantName)
+            navToMapsActivityWithIdent(plantName)
         }
         identified_button2.setOnClickListener {//If ID 2 clicked
             val plantName = identified_name_textview2.text.toString()
             saveIdentChangeActiv(plantName)
+            navToMapsActivityWithIdent(plantName)
         }
         identified_selfIdentify.setOnClickListener {
             navToSelfIdentifyActivity()
         }
+    }
+
+    private fun navToMapsActivityWithIdent(plantName: String){//Navigates to the Maps Activity, with the PlantName and baseIdent
+        val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
+        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        intent.putExtra("plantName",plantName)
+        intent.putExtra("baseIdent",baseIdent)
+        startActivity(intent) //Change to new class
     }
 
 
@@ -111,7 +122,7 @@ class IdentifiedActivity : AppCompatActivity() {
         val defaultDesc = ""
         val correctIdent = IdentSaveToDatabase().getIdentObject(plantName, identImageName, defaultDesc, baseIdent)
         IdentSaveToDatabase().saveIdentToDatabase(correctIdent)
-        navToMapsActivity()
+
     }
 
 
