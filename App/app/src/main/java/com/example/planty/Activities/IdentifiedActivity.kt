@@ -10,6 +10,7 @@ import android.view.View
 import com.example.planty.Classes.DataSort
 import com.example.planty.R
 import com.example.planty.Classes.DateTime
+import com.example.planty.Classes.IdentSaveToDatabase
 import com.example.planty.Objects.Identified
 import com.example.planty.Objects.UserImage
 import com.google.firebase.auth.FirebaseAuth
@@ -106,33 +107,13 @@ class IdentifiedActivity : AppCompatActivity() {
     }
 
     private fun saveIdentChangeActiv(plantName: String){ //Uses the givenPlant name & saves the identifed Image & changes activity
-        val correctIdent = getCorrectIdent(plantName)
-        saveIdentToDatabase(correctIdent)
+        val identImageName = getImageFileName()
+        val defaultDesc = ""
+        val correctIdent = IdentSaveToDatabase().getIdentObject(plantName, identImageName, defaultDesc, baseIdent)
+        IdentSaveToDatabase().saveIdentToDatabase(correctIdent)
         navToMapsActivity()
     }
 
-
-    private fun getCorrectIdent(plantName: String): Identified {//returns identified object, populated with details of identifed plant
-        val uid = FirebaseAuth.getInstance().uid.toString()
-        val dateTime = DateTime().getDateTime()
-        val identImageName = getImageFileName()
-        val defaultDesc = ""
-        val correctIdent = Identified(
-            uid,
-            dateTime,
-            plantName,
-            baseIdent,
-            identImageName,
-            defaultDesc
-        ) //populate Identified object
-        return correctIdent //return identified object
-    }
-
-    private fun saveIdentToDatabase(correctIdent: Identified){//Save correct identification to database
-        val uuid = UUID.randomUUID().toString() //Produce unique ID for ident file name
-        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uuid}")
-        ref.setValue(correctIdent)
-    }
 
     private fun populateBaseIdent(){
         try {
@@ -311,6 +292,8 @@ class IdentifiedActivity : AppCompatActivity() {
     private fun navToSelfIdentifyActivity(){
         val intent = Intent(this, SelfIdentifyActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        var imageFileName = getImageFileName()
+        intent.putExtra("fileName",imageFileName)
         startActivity(intent) //Change to new class
     }
 }
