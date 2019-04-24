@@ -14,11 +14,20 @@ import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.planty.Classes.CloudVisionData
 import com.example.planty.Classes.IdentSaveToDatabase
+import com.example.planty.Objects.UserImage
 import com.example.planty.R
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_identified.*
 
 import kotlinx.android.synthetic.main.activity_self_identify.*
 import java.lang.Exception
+import java.util.*
+import kotlin.concurrent.schedule
 
 class SelfIdentifyActivity : AppCompatActivity() {
     private val cloudVision = CloudVisionData()
@@ -35,6 +44,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
 
             verifyLoggedIn()
            populateSpinner()
+        populateUserImage()
 
         SelfIdentify_Save_Button.setOnClickListener{
             if (checkPopulatedFields()){
@@ -118,8 +128,46 @@ class SelfIdentifyActivity : AppCompatActivity() {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
             }
         }
+    }
 
+    private fun populateUserImage(){//used to populate the user image at the top of the screen
+        try {
+            val ref = FirebaseDatabase.getInstance().getReference("/userImages")
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(p0: DataSnapshot) {
+                    getImgLoc(p0)
+                }
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d("SelfIdentifyActivity", "Error Loading main image = ${p0.message}")
+                }
+            })
+        }
+        catch(e: Exception){
+            Log.d("SelfIdentifyActivity","populateUserImage Error = ${e.message}")
+        }
+    }
 
+    private fun getImgLoc(p0: DataSnapshot){
+        var imageName = getImageFileName()
+        var retryLoad = true //Used to determine if the image has been loaded yet
+        p0.children.forEach {
+            if (it.key.toString() == imageName) { //Compares the imageName to the Id name, to confirm the correct image details are loaded
+                val currentImage = it.getValue(UserImage::class.java)
+                val imgLoc = currentImage?.imageLoc
+                Picasso.get().load(imgLoc).into(SelfIdentify_PlantImage)
+                retryLoad = false
+            }
+        }
+        if (retryLoad == true) {
+            retryImageLoad()//If image is not loaded, retry in 500ms
+        }
+    }
+
+    private fun retryImageLoad(){//Attempts to reload the image ever 500ms, if the image is not yet saved to firebase
+        //Must be re-attempted untill the file is found, this function can load faster than the file is saved to firebase (THIS IS DONE AS THE IMAGE MAY NOT BE SAVED, THUS AVAILABLE YET)
+        Timer("Retry Image Load", false).schedule(500) {
+            populateUserImage()
+        }
     }
 
     private fun verifyLoggedIn(){ //Check if the User is already logged in, if not, return User to registerActivity
