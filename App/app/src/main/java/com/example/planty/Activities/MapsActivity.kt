@@ -36,8 +36,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         supportActionBar?.title = "Planty  |  Find Plants"
         verifyLoggedIn()//check the User is logged in
+
+        populateSpecificMarkers()
     }
 
+    private fun populateSpecificMarkers(){
+    //Go into database, find the properties
+    }
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -49,17 +54,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
 
-
-
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(50.375356, -4.140875)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydneyyyy"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
         getMarkers(googleMap)
-
-
 
     }
 
@@ -98,15 +99,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
               //  Log.d("MapsActivity",it.toString())
                 //  Log.d("MapsActivity","BRANCH == ${currentBranch?.longitude.toString()}")
                     val currentBranch = it.getValue(Branch::class.java)
-
                     val longitude = currentBranch?.longitude!!.toDouble()
                     val latitude = currentBranch?.latitude!!.toDouble()
-                    val branchName = currentBranch?.branchName
+                    val branchName = currentBranch?.name.toString()
 
                     val branch = LatLng(latitude, longitude)
 
                     mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
-                     Log.d("MapsActivity","ADDED MARK")
+                     Log.d("MapsActivity","ADDED MARK + X = ${longitude},  Branch = ${branchName}")
 
                 }
             }
