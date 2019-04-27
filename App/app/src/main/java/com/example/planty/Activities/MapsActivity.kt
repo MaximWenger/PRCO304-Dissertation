@@ -1,11 +1,18 @@
 package com.example.planty.Activities
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.app.ActivityCompat
 import com.example.planty.Classes.CloudVisionData
 import com.example.planty.R
 import com.example.planty.Objects.Branch
@@ -26,6 +33,12 @@ import java.lang.Exception
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var locationManager: LocationManager
+    private var hasGps = false
+    private var hasNetwork = false
+    private  var locationGps : Location? = null
+    private  var locationNetwork : Location? = null
+
     private var basePath = "/branches/"
     private var attemptCounter = 0
 
@@ -61,6 +74,92 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             var baseIdent =  getBaseIdent()
         }
         //if no specific, get base
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLocation(){
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        if (hasGps || hasNetwork){
+            if (hasGps) {
+                Log.d("MapsActivity", "HasGPS")
+              //  locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0F, object: LocationListener()) //Duration of gps update & Minimum distance
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0F, object : LocationListener {
+                    override fun onLocationChanged(location: Location?) {
+                        if (location != null){
+                            locationGps = location
+                        }
+                    }
+
+                    override fun onProviderDisabled(provider: String?) {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+
+                    override fun onProviderEnabled(provider: String?) {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+                })
+            val localGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                if (localGpsLocation != null){
+                    locationGps = localGpsLocation
+                }
+            }
+            if (hasNetwork) {
+                Log.d("MapsActivity", "HasNetwork")
+                //  locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0F, object: LocationListener()) //Duration of gps update & Minimum distance
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0F, object : LocationListener {
+                    override fun onLocationChanged(location: Location?) {
+                        if (location != null){
+                            locationNetwork = location
+                          }
+                    }
+
+                    override fun onProviderDisabled(provider: String?) {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+
+                    override fun onProviderEnabled(provider: String?) {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    }
+                })
+                val localNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                if (localNetworkLocation != null){
+                    locationNetwork = localNetworkLocation
+                }
+        }
+        if (locationGps != null && locationNetwork != null){
+            if (locationGps!!.accuracy > locationNetwork!!.accuracy){
+                Log.d("MapsActivity","Latitude NETWORK= ${locationNetwork!!.latitude}, Longitude = ${locationNetwork!!.longitude}")
+            }
+            else{
+                Log.d("MapsActivity","Latitude GPS= ${locationGps!!.latitude}, Longitude = ${locationGps!!.longitude}")
+            }
+        }
+            if (locationNetwork != null){
+                Log.d("MapsActivity","Latitude NETWORK= ${locationNetwork!!.latitude}, Longitude = ${locationNetwork!!.longitude}")
+            }
+            if (locationGps != null){
+                val currentLatLng = LatLng(locationGps!!.latitude, locationGps!!.longitude)
+                mMap.isMyLocationEnabled = true
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16.0f)) //Moves camera to this point
+
+               // mMap.animateCamera(CameraUpdateFactory.newLatLng(currentLatLng))
+                //now to zoom
+                Log.d("MapsActivity","Latitude GPS= ${locationGps!!.latitude}, Longitude = ${locationGps!!.longitude}")
+            }
+        }
+        else{
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) //If location settings are not accetped, redirect user to turn on location settings
+        }
     }
 
     private fun getSpecPlants(plantName: String, baseIdent: String){ //Used to match the PlantName to any plant names within the database
@@ -129,14 +228,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val branch = LatLng(latitude, longitude)
                            mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
                            Log.d("MapsActivity","ADDED MARK + X = ${longitude},  Branch = ${branchName}")
-
                     }
                 }
                 override fun onCancelled(p0: DatabaseError) {
-
                 }
             })
-
         }
 
 
@@ -194,10 +290,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap = googleMap
 
+        getLocation()
+
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(50.375356, -4.140875)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydneyyyy"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+     //   val sydney = LatLng(50.375356, -4.140875)
+       // mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydneyyyy"))
+
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))///////////////////////////////////////////////
+
+
+
+
         //getAllMarkers()//for testing, stopped this
 
     }
@@ -207,7 +310,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     fun getAllMarkers(){
-
         val ref = FirebaseDatabase.getInstance().getReference(basePath)
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
@@ -220,8 +322,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val branchName = currentBranch?.name.toString()
                     val branch = LatLng(latitude, longitude)
                     mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(branch))
                      Log.d("MapsActivity","ADDED MARK + X = ${longitude},  Branch = ${branchName}")
-
                 }
             }
             override fun onCancelled(p0: DatabaseError) {
