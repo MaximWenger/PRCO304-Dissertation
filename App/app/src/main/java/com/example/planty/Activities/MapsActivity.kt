@@ -26,7 +26,7 @@ import java.lang.Exception
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private var matchKey = ""
+    private var basePath = "/branches/"
     private var attemptCounter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +63,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun getSpecPlants(plantName: String, baseIdent: String){ //Used to match the PlantName to any plant names within the database
+        var matchKey = ""
         val lowerCasePlantName = plantName.toLowerCase()
         val ref = FirebaseDatabase.getInstance().getReference("/specPlants/${baseIdent}")
         ref.addListenerForSingleValueEvent(object : ValueEventListener{
@@ -73,7 +74,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (lowerCaseKey.contains(lowerCasePlantName) || lowerCasePlantName.contains(lowerCaseKey)){
                         Log.d("MapsActivity","CORRECT MATCH KEY CONFIRM ")
                         matchKey = key
-                        //Now display the specific points
+                        getSpecMarkers(baseIdent, matchKey)
                     }
                 }
                 if (matchKey == "" && attemptCounter == 0){//If the plantID has not been found in the database, resort to base ID
@@ -83,14 +84,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 else{
                     //Display BASEID Pins
                 }
-
             }
-
             override fun onCancelled(p0: DatabaseError) {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
                 //DISPLAY ALL PINS (DEFAULT)
             }
 
+        })
+    }
+
+    fun getSpecMarkers(baseIdent: String, matchKey: String){//Gets branchIDs specific to the identified plant
+
+        val ref = FirebaseDatabase.getInstance().getReference("/specPlants/${baseIdent}/${matchKey}")
+        ref.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot) {
+                p0.children.forEach{
+                var branchID = it.value.toString()
+                      Log.d("MapsActivity","GOT BRANCH VALUE ${branchID}")
+                  //  mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
+                  //  Log.d("MapsActivity","ADDED MARK + X = ${longitude},  Branch = ${branchName}")
+
+                }
+            }
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
         })
     }
 
@@ -149,7 +167,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val sydney = LatLng(50.375356, -4.140875)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydneyyyy"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-        getAllMarkers(googleMap)
+        getAllMarkers()
 
     }
 
@@ -157,9 +175,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-    fun getAllMarkers(googleMap: GoogleMap){
-        mMap = googleMap
-        val ref = FirebaseDatabase.getInstance().getReference("/branches/")
+    fun getAllMarkers(){
+
+        val ref = FirebaseDatabase.getInstance().getReference(basePath)
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach{
