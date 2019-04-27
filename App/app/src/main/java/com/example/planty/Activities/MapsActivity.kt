@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import com.example.planty.Classes.CloudVisionData
 import com.example.planty.R
 import com.example.planty.Objects.Branch
 
@@ -25,6 +26,8 @@ import java.lang.Exception
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private var matchKey = ""
+    private var attemptCounter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,25 +45,69 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun populateSpecificMarkers(){
     //Go into database, find the properties
+        //get specific
+        var plantName = getPlantName()
+        if (plantName.isNotEmpty()){
+            //Display all businesses which sell this plant (If any)
+          //  getSpecPlants(plantName)
+
+            var baseId = getBaseIdent()
+            getSpecPlants(plantName, baseId)
+
+           //
+        }
+        else{
+            var baseIdent =  getBaseIdent()
+        }
+        //if no specific, get base
     }
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the User will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the User has
-     * installed Google Play services and returned to the app.
-     */
-    override fun onMapReady(googleMap: GoogleMap) {
 
-        mMap = googleMap
+    private fun getSpecPlants(plantName: String, baseIdent: String){ //Used to match the PlantName to any plant names within the database
+        val lowerCasePlantName = plantName.toLowerCase()
+        val ref = FirebaseDatabase.getInstance().getReference("/specPlants/${baseIdent}")
+        ref.addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot){
+                p0.children.forEach{
+                    val key = it.key.toString() //Get current key
+                    val lowerCaseKey = key.toLowerCase()
+                    if (lowerCaseKey.contains(lowerCasePlantName) || lowerCasePlantName.contains(lowerCaseKey)){
+                        Log.d("MapsActivity","CORRECT MATCH KEY CONFIRM ")
+                        matchKey = key
+                        //Now display the specific points
+                    }
+                }
+                if (matchKey == "" && attemptCounter == 0){//If the plantID has not been found in the database, resort to base ID
+                    attemptAllBaseIdent(plantName)//Must be here to deal with download latency, if placed outside of loop, will always return as default
+                    attemptCounter++
+                }
+                else{
+                    //Display BASEID Pins
+                }
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(50.375356, -4.140875)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydneyyyy"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-        getMarkers(googleMap)
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                //DISPLAY ALL PINS (DEFAULT)
+            }
+
+        })
+    }
+
+    private fun attemptAllBaseIdent(plantName: String){//Used to iterate through the every baseIdent within database to find specific plant
+        val amendedBaseIdentLibrary = removeExistingBaseIdent()//Remove the existing (Already checked baseID)
+        for (ident in amendedBaseIdentLibrary){ //Iterates through every baseIdent if needed to try and find a correct match
+                getSpecPlants(plantName, ident)
+        }
+    }
+
+    private fun removeExistingBaseIdent(): MutableList<String> {//Removes the existing baseId from the list, which is then checked for the correct plant type
+        var immutableBaseIdentLibrary = CloudVisionData().getBaseIdentLibrary()
+        var mutableBaseIdentLibrary = immutableBaseIdentLibrary.toMutableList() //Convert immutableList to mutable so the existing baseID can be removed
+        var baseIdent = getBaseIdent()
+         mutableBaseIdentLibrary.remove(baseIdent)
+        Log.d("MapsActivity","removeExistingBaseIdent before = ${immutableBaseIdentLibrary.size}, After = ${mutableBaseIdentLibrary.size}")
+        return mutableBaseIdentLibrary
 
     }
 
@@ -85,16 +132,36 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         return plantName
     }
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the User will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the User has
+     * installed Google Play services and returned to the app.
+     */
+    override fun onMapReady(googleMap: GoogleMap) {
+
+        mMap = googleMap
+
+        // Add a marker in Sydney and move the camera
+        val sydney = LatLng(50.375356, -4.140875)
+        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydneyyyy"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        getAllMarkers(googleMap)
+
+    }
 
 
 
-    fun getMarkers(googleMap: GoogleMap){
+
+
+    fun getAllMarkers(googleMap: GoogleMap){
         mMap = googleMap
         val ref = FirebaseDatabase.getInstance().getReference("/branches/")
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
-
-
                 p0.children.forEach{
               //  Log.d("MapsActivity",it.toString())
                 //  Log.d("MapsActivity","BRANCH == ${currentBranch?.longitude.toString()}")
@@ -102,9 +169,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val longitude = currentBranch?.longitude!!.toDouble()
                     val latitude = currentBranch?.latitude!!.toDouble()
                     val branchName = currentBranch?.name.toString()
-
                     val branch = LatLng(latitude, longitude)
-
                     mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
                      Log.d("MapsActivity","ADDED MARK + X = ${longitude},  Branch = ${branchName}")
 

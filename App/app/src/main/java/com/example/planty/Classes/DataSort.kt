@@ -28,4 +28,11 @@ class DataSort {
         }
         return newString
     }
+
+    fun toLowerCase(upperCase: String): String {
+        var lowerCase = upperCase.toLowerCase()
+        return lowerCase
+    }
+
+
 }
