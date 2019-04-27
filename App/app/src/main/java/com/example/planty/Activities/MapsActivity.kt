@@ -29,6 +29,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var basePath = "/branches/"
     private var attemptCounter = 0
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -74,7 +75,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (lowerCaseKey.contains(lowerCasePlantName) || lowerCasePlantName.contains(lowerCaseKey)){
                         Log.d("MapsActivity","CORRECT MATCH KEY CONFIRM ")
                         matchKey = key
-                        getSpecMarkers(baseIdent, matchKey)
+                        getSpecBranchID(baseIdent, matchKey)
                     }
                 }
                 if (matchKey == "" && attemptCounter == 0){//If the plantID has not been found in the database, resort to base ID
@@ -93,23 +94,53 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    fun getSpecMarkers(baseIdent: String, matchKey: String){//Gets branchIDs specific to the identified plant
-
+    private fun getSpecBranchID(baseIdent: String, matchKey: String){//Gets all branchIDs for the specific plant
+      var allIds = mutableListOf<String>()
         val ref = FirebaseDatabase.getInstance().getReference("/specPlants/${baseIdent}/${matchKey}")
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach{
-                var branchID = it.value.toString()
-                      Log.d("MapsActivity","GOT BRANCH VALUE ${branchID}")
-                  //  mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
-                  //  Log.d("MapsActivity","ADDED MARK + X = ${longitude},  Branch = ${branchName}")
-
+                    var branchID = it.value.toString()
+                    Log.d("MapsActivity", "GOT BRANCH VALUE ${branchID}")
+                    allIds.add(branchID)
                 }
+                getSpecMarkers(allIds) //Must be transfered in an array, as the overRide methods can become stacked with extra data within a singlke variable
             }
             override fun onCancelled(p0: DatabaseError) {
 
             }
         })
+    }
+
+    private fun getSpecMarkers(allIds: MutableList<String>) { //Display each marker for the specific plant
+        Log.d("MapsActivity","getSpecMarkers BranchID ${allIds.size}}")
+
+        for (branchID in allIds){
+            var path = basePath + branchID
+            val ref = FirebaseDatabase.getInstance().getReference(path)
+            ref.addListenerForSingleValueEvent(object: ValueEventListener{
+                override fun onDataChange(p0: DataSnapshot) {
+                    p0.children.forEach{
+                        Log.d("MapsActivity"," Got to getSpecMarkers Value = ${p0}")
+                        val currentBranch = p0.getValue(Branch::class.java)
+                        val longitude = currentBranch?.longitude!!.toDouble()
+                        val latitude = currentBranch?.latitude!!.toDouble()
+                        val branchName = currentBranch?.name.toString()
+                        val branch = LatLng(latitude, longitude)
+                           mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
+                           Log.d("MapsActivity","ADDED MARK + X = ${longitude},  Branch = ${branchName}")
+
+                    }
+                }
+                override fun onCancelled(p0: DatabaseError) {
+
+                }
+            })
+
+        }
+
+
+
     }
 
     private fun attemptAllBaseIdent(plantName: String){//Used to iterate through the every baseIdent within database to find specific plant
@@ -167,7 +198,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val sydney = LatLng(50.375356, -4.140875)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydneyyyy"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-        getAllMarkers()
+        //getAllMarkers()//for testing, stopped this
 
     }
 
