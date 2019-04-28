@@ -33,11 +33,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var locationManager: LocationManager
+    private lateinit var currentLatLng: LatLng
 
     private var hasGps = false
     private var hasNetwork = false
-    private  var locationGps : Location? = null
-    private  var locationNetwork : Location? = null
+    private var locationGps : Location? = null
+    private var locationNetwork : Location? = null
 
     private var basePath = "/branches/"
     private var attemptCounter = 0
@@ -57,18 +58,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         populateSpecificMarkers()
     }
 
-    private fun populateSpecificMarkers(){
+    private fun populateSpecificMarkers(){ //Popualte the markers for the branches (individual branches or all branches)
         var plantName = getPlantName()
         if (plantName.isNotEmpty()){ //If there is a plantName Display all businesses which sell this plant (If any)
             var baseId = getBaseIdent()//Return baseId
-            getSpecPlants(plantName, baseId)
-
-           //
+            getSpecPlants(plantName, baseId) //Display the markers for branches which sell the plant
         }
         else{
-            var baseIdent =  getBaseIdent()
+            displayAllMarkers()
         }
-        //if no specific, get base
     }
 
     @SuppressLint("MissingPermission")
@@ -79,25 +77,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (hasGps || hasNetwork){
             if (hasGps) {
                 Log.d("MapsActivity", "HasGPS")
-              //  locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0F, object: LocationListener()) //Duration of gps update & Minimum distance
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0F, object : LocationListener {
                     override fun onLocationChanged(location: Location?) {
                         if (location != null){
                             locationGps = location
+                            updateLocation()
                         }
                     }
-
-                    override fun onProviderDisabled(provider: String?) {
-
-                    }
-
-                    override fun onProviderEnabled(provider: String?) {
-
-                    }
-
-                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-                        //Update the x&Y
-                    }
+                    override fun onProviderDisabled(provider: String?) {}
+                    override fun onProviderEnabled(provider: String?) {}
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
                 })
             val localGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                 if (localGpsLocation != null){
@@ -105,55 +94,41 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
             if (hasNetwork) {
-                Log.d("MapsActivity", "HasNetwork")
-                //  locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0F, object: LocationListener()) //Duration of gps update & Minimum distance
+               Log.d("MapsActivity", "HasNetwork")
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0F, object : LocationListener {
                     override fun onLocationChanged(location: Location?) {
                         if (location != null){
                             locationNetwork = location
+                            updateLocation()
                           }
                     }
-                    override fun onProviderDisabled(provider: String?) {
-
-                    }
-
-                    override fun onProviderEnabled(provider: String?) {
-
-                    }
-
-                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-                      //Update the x&Y
-                    }
+                    override fun onProviderDisabled(provider: String?) {}
+                    override fun onProviderEnabled(provider: String?) {}
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
                 })
                 val localNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
                 if (localNetworkLocation != null){
                     locationNetwork = localNetworkLocation
                 }
         }
-        if (locationGps != null && locationNetwork != null){
-            if (locationGps!!.accuracy > locationNetwork!!.accuracy){
-                Log.d("MapsActivity","Latitude NETWORK= ${locationNetwork!!.latitude}, Longitude = ${locationNetwork!!.longitude}")
-            }
-            else{
-                Log.d("MapsActivity","Latitude GPS= ${locationGps!!.latitude}, Longitude = ${locationGps!!.longitude}")
-            }
-        }
             if (locationNetwork != null){
-                Log.d("MapsActivity","Latitude NETWORK= ${locationNetwork!!.latitude}, Longitude = ${locationNetwork!!.longitude}")
+                currentLatLng = LatLng(locationNetwork!!.latitude, locationNetwork!!.longitude)
+                mMap.isMyLocationEnabled = true
+                updateLocation()
             }
             if (locationGps != null){
-                val currentLatLng = LatLng(locationGps!!.latitude, locationGps!!.longitude)
+                currentLatLng = LatLng(locationGps!!.latitude, locationGps!!.longitude)
                 mMap.isMyLocationEnabled = true
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 8.0f)) //Moves camera to this point
-
-               // mMap.animateCamera(CameraUpdateFactory.newLatLng(currentLatLng))
-                //now to zoom
-                Log.d("MapsActivity","Latitude GPS= ${locationGps!!.latitude}, Longitude = ${locationGps!!.longitude}")
+                updateLocation()
             }
         }
         else{
-            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) //If location settings are not accetped, redirect user to turn on location settings
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) //If location settings are not accepted, redirect user to turn on location settings
         }
+    }
+
+    private fun updateLocation(){ //Used to update the user Map location
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 8.0f)) //Moves camera to this point
     }
 
     private fun processMatchData(lowerCaseKey: String, lowerCasePlantName: String): Boolean {
@@ -186,7 +161,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     attemptCounter++
                 }
                 attemptCounter++
-
                 if (matchKey == "" && attemptCounter > baseIdentLibrarySize ){//If the key hasnt been found & every baseID has been checked, display all branches within the baseID
                     populateSingleBaseIdent() //Populate map with a marker for every branch within baseIdent
                 }
@@ -197,6 +171,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
     }
+
     private fun populateSingleBaseIdent(){ //Populates map with a marker for every branch within origBaseIdent
         val basePlants = "basePlants"
         var origBaseIdent = getBaseIdent()
@@ -232,12 +207,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 override fun onDataChange(p0: DataSnapshot) {
                     p0.children.forEach{
                         val currentBranch = p0.getValue(Branch::class.java)
-                        val longitude = currentBranch?.longitude!!.toDouble()
-                        val latitude = currentBranch?.latitude!!.toDouble()
-                        val branchName = currentBranch?.name.toString()
-                        val branch = LatLng(latitude, longitude)
-                        mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
-                        Log.d("MapsActivity", "displaySpecMarkers Marker added ${branchName}")
+                        populateSingleBranchMarker(currentBranch)//Populate a single marker
                     }
                 }
                 override fun onCancelled(p0: DatabaseError) {
@@ -246,9 +216,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             })
         }
+    }
 
-
-
+    private fun populateSingleBranchMarker(currentBranch: Branch?){//Populates a single marker, of type Branch
+        val longitude = currentBranch?.longitude!!.toDouble()
+        val latitude = currentBranch?.latitude!!.toDouble()
+        val branchName = currentBranch?.name.toString()
+        val branch = LatLng(latitude, longitude)
+        mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
+        Log.d("MapsActivity", "displaySpecMarkers Marker added ${branchName}")
     }
 
     private fun attemptAllBaseIdent(plantName: String){//Used to iterate through the every baseIdent within database to find specific plant
@@ -268,7 +244,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
-    private fun getBaseIdent(): String { //Used to display marker points if the specific plant name is not found
+    private fun getBaseIdent(): String { //Returns baseID (If the plant has been identified)
         var baseIdent = ""
         try {
             baseIdent = intent.getStringExtra("baseIdent")
@@ -279,7 +255,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return baseIdent
     }
 
-    private fun getPlantName(): String {
+    private fun getPlantName(): String {//Returns plantName (If plant has been identified)
         var plantName = ""
         try {
             plantName = intent.getStringExtra("plantName")
@@ -304,6 +280,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         getLocation() //Gets current location
 
+
         // Add a marker in Sydney and move the camera
      //   val sydney = LatLng(50.375356, -4.140875)
        // mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydneyyyy"))
@@ -321,13 +298,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-    fun displayAllMarkers(){
+    private fun displayAllMarkers(){//Display every marker from the database
         val ref = FirebaseDatabase.getInstance().getReference(basePath)
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach{
-              //  Log.d("MapsActivity",it.toString())
-                //  Log.d("MapsActivity","BRANCH == ${currentBranch?.longitude.toString()}")
                     val currentBranch = it.getValue(Branch::class.java)
                     val longitude = currentBranch?.longitude!!.toDouble()
                     val latitude = currentBranch?.latitude!!.toDouble()
@@ -339,7 +314,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
             override fun onCancelled(p0: DatabaseError) {
-
+                Log.d("MapsActivity","displayAllMarkers Error = ${p0.message}")
             }
         })
     }
@@ -388,8 +363,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null) {
             val intent = Intent(this, RegisterActivity::class.java)
-            intent.flags =
-                Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
             startActivity(intent)
         }
     }
