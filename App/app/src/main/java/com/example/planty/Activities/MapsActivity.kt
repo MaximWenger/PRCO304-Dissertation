@@ -60,11 +60,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun populateSpecificMarkers(){ //Popualte the markers for the branches (individual branches or all branches)
         var plantName = getPlantName()
+        var baseID = getBaseIdent()
         if (plantName.isNotEmpty()){ //If there is a plantName Display all businesses which sell this plant (If any)
             var baseId = getBaseIdent()//Return baseId
             getSpecPlants(plantName, baseId) //Display the markers for branches which sell the plant
         }
-        else{
+
+        else if (baseID.isNotEmpty()){
+            var path = "/basePlants/" + baseID
+            getSpecBranchIDs(path)
+        }
+        else {
             displayAllMarkers()
         }
     }
@@ -81,7 +87,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     override fun onLocationChanged(location: Location?) {
                         if (location != null){
                             locationGps = location
-                            updateLocation()
+
                         }
                     }
                     override fun onProviderDisabled(provider: String?) {}
@@ -99,7 +105,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     override fun onLocationChanged(location: Location?) {
                         if (location != null){
                             locationNetwork = location
-                            updateLocation()
+
                           }
                     }
                     override fun onProviderDisabled(provider: String?) {}
@@ -264,6 +270,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.d("MapsActivity", "getPlantName Error = ${e.message}")
         }
         return plantName
+    }
+
+    private fun getIdentifiedPlantUUID(): String {//Returns IdentifiedUUID (If plant has been identified) To be used to populate the previous identifications
+        var identifiedID = ""
+        try {
+            identifiedID = intent.getStringExtra("identifiedPlantUUID")
+
+        }catch (e: Exception){
+            Log.d("MapsActivity", "getIdentifiedPlantUUID Error = ${e.message}")
+        }
+        return identifiedID
     }
     /**
      * Manipulates the map once available.

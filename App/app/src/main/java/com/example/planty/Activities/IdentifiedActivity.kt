@@ -9,9 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import com.example.planty.Classes.DataSort
 import com.example.planty.R
-import com.example.planty.Classes.DateTime
 import com.example.planty.Classes.IdentSaveToDatabase
-import com.example.planty.Objects.Identified
 import com.example.planty.Objects.UserImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -21,13 +19,12 @@ import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_identified.*
 import java.lang.Exception
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.util.*
 import kotlin.concurrent.schedule
 
 class IdentifiedActivity : AppCompatActivity() {
     private var baseIdent = ""
+    private var identifiedPlantUUID = ""
     private var identifiedString = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +68,7 @@ class IdentifiedActivity : AppCompatActivity() {
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         intent.putExtra("plantName",plantName)
         intent.putExtra("baseIdent",baseIdent)
+        intent.putExtra("identifiedPlantUUID", identifiedPlantUUID)
         startActivity(intent) //Change to new class
     }
 
@@ -117,12 +115,11 @@ class IdentifiedActivity : AppCompatActivity() {
             }
     }
 
-    private fun saveIdentChangeActiv(plantName: String){ //Uses the givenPlant name & saves the identifed Image & changes activity
+    private fun saveIdentChangeActiv(plantName: String){ //Uses the givenPlant name & saves the identifed Image
         val identImageName = getImageFileName()
         val defaultDesc = ""
         val correctIdent = IdentSaveToDatabase().getIdentObject(plantName, identImageName, defaultDesc, baseIdent)
-        IdentSaveToDatabase().saveIdentToDatabase(correctIdent)
-
+        identifiedPlantUUID = IdentSaveToDatabase().saveIdentToDatabase(correctIdent)
     }
 
 

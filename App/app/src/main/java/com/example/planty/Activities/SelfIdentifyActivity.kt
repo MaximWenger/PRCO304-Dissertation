@@ -32,7 +32,7 @@ import kotlin.concurrent.schedule
 class SelfIdentifyActivity : AppCompatActivity() {
     private val cloudVision = CloudVisionData()
     private val identSave =  IdentSaveToDatabase()
-
+    private var identifiedPlantUUID = ""
     private var plantType = cloudVision.getBaseIdentLibrary().first() //Used to keep chosen plant type (from spinner)
 
 
@@ -60,6 +60,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
         val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         intent.putExtra("baseIdent",plantType)
+        intent.putExtra("identifiedPlantUUID", identifiedPlantUUID)
         startActivity(intent) //Change to new class
     }
 
@@ -70,7 +71,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
         if (imageName.isNotEmpty()) {
 
             var identifiedPlant = identSave.getIdentObject(plantName, imageName, plantType, plantDesc)
-            identSave.saveIdentToDatabase(identifiedPlant)
+            identifiedPlantUUID = identSave.saveIdentToDatabase(identifiedPlant)
             Log.d("SelfIdentifyActivity", "Identity correctly saved")
         }
     }
@@ -133,7 +134,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                Log.d("SelfIdentifyActivity","populateSpinner Error, nothing selected")
             }
         }
     }
