@@ -12,7 +12,6 @@ import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import androidx.core.app.ActivityCompat
 import com.example.planty.Classes.CloudVisionData
 import com.example.planty.R
 import com.example.planty.Objects.Branch
@@ -34,6 +33,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var locationManager: LocationManager
+
     private var hasGps = false
     private var hasNetwork = false
     private  var locationGps : Location? = null
@@ -58,14 +58,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun populateSpecificMarkers(){
-    //Go into database, find the properties
-        //get specific
         var plantName = getPlantName()
-        if (plantName.isNotEmpty()){
-            //Display all businesses which sell this plant (If any)
-          //  getSpecPlants(plantName)
-
-            var baseId = getBaseIdent()
+        if (plantName.isNotEmpty()){ //If there is a plantName Display all businesses which sell this plant (If any)
+            var baseId = getBaseIdent()//Return baseId
             getSpecPlants(plantName, baseId)
 
            //
@@ -93,15 +88,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
 
                     override fun onProviderDisabled(provider: String?) {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                     }
 
                     override fun onProviderEnabled(provider: String?) {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                     }
 
                     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                        //Update the x&Y
                     }
                 })
             val localGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -118,17 +113,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             locationNetwork = location
                           }
                     }
-
                     override fun onProviderDisabled(provider: String?) {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                     }
 
                     override fun onProviderEnabled(provider: String?) {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
                     }
 
                     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                      //Update the x&Y
                     }
                 })
                 val localNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
@@ -150,7 +144,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (locationGps != null){
                 val currentLatLng = LatLng(locationGps!!.latitude, locationGps!!.longitude)
                 mMap.isMyLocationEnabled = true
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16.0f)) //Moves camera to this point
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 8.0f)) //Moves camera to this point
 
                // mMap.animateCamera(CameraUpdateFactory.newLatLng(currentLatLng))
                 //now to zoom
@@ -162,75 +156,93 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun processMatchData(lowerCaseKey: String, lowerCasePlantName: String): Boolean {
+        if (lowerCaseKey.contains(lowerCasePlantName) || lowerCasePlantName.contains(lowerCaseKey)) {
+            Log.d("MapsActivity", "processMatchData CORRECT MATCH KEY CONFIRM ")
+            return true
+        }
+       return false
+    }
+
     private fun getSpecPlants(plantName: String, baseIdent: String){ //Used to match the PlantName to any plant names within the database
         var matchKey = ""
+        val specPlants = "specPlants"
+        var baseIdentLibrarySize = CloudVisionData().getBaseIdentLibrary().size
+        var path = ""
         val lowerCasePlantName = plantName.toLowerCase()
         val ref = FirebaseDatabase.getInstance().getReference("/specPlants/${baseIdent}")
         ref.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(p0: DataSnapshot){
                 p0.children.forEach{
                     val key = it.key.toString() //Get current key
-                    val lowerCaseKey = key.toLowerCase()
-                    if (lowerCaseKey.contains(lowerCasePlantName) || lowerCasePlantName.contains(lowerCaseKey)){
-                        Log.d("MapsActivity","CORRECT MATCH KEY CONFIRM ")
-                        matchKey = key
-                        getSpecBranchID(baseIdent, matchKey)
+                    if (processMatchData(key.toLowerCase(), lowerCasePlantName)){
+                        matchKey = key//Get the PlantName from the database (Gets formatting)
+                        path = "/" + specPlants + "/" + baseIdent + "/" + matchKey
+                        getSpecBranchIDs(path)//Calls displaySpecMarkers to display the markers on the map
                     }
                 }
-                if (matchKey == "" && attemptCounter == 0){//If the plantID has not been found in the database, resort to base ID
+                if (matchKey == "" && attemptCounter == 0){//If the plantID has not been found in the database, resort to checking every baseId for the plantName
                     attemptAllBaseIdent(plantName)//Must be here to deal with download latency, if placed outside of loop, will always return as default
                     attemptCounter++
                 }
-                else{
-                    //Display BASEID Pins
+                attemptCounter++
+
+                if (matchKey == "" && attemptCounter > baseIdentLibrarySize ){//If the key hasnt been found & every baseID has been checked, display all branches within the baseID
+                    populateSingleBaseIdent() //Populate map with a marker for every branch within baseIdent
                 }
             }
             override fun onCancelled(p0: DatabaseError) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                //DISPLAY ALL PINS (DEFAULT)
+                Log.d("MapsActivity", "getSpecPlants Error ${p0.message}")
+                displayAllMarkers()//If fails, try to display all markers
             }
-
         })
     }
+    private fun populateSingleBaseIdent(){ //Populates map with a marker for every branch within origBaseIdent
+        val basePlants = "basePlants"
+        var origBaseIdent = getBaseIdent()
+        var path = "/" + basePlants + "/" + origBaseIdent
+        Log.d("MapsActivity","ELSE. BaseIdent = ${origBaseIdent}  ")
+        getSpecBranchIDs(path)
+    }
 
-    private fun getSpecBranchID(baseIdent: String, matchKey: String){//Gets all branchIDs for the specific plant
+    private fun getSpecBranchIDs(path: String){//Gets all branchIDs for the specific plant into an array, then calls displaySpecMarkers to display the markers
       var allIds = mutableListOf<String>()
-        val ref = FirebaseDatabase.getInstance().getReference("/specPlants/${baseIdent}/${matchKey}")
+        val ref = FirebaseDatabase.getInstance().getReference(path)
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach{
-                    var branchID = it.value.toString()
-                    Log.d("MapsActivity", "GOT BRANCH VALUE ${branchID}")
-                    allIds.add(branchID)
+                    var branchID = it.value.toString()//Get current branchID
+                    allIds.add(branchID)//Add the current branchID to the array
+                    Log.d("MapsActivity", "getSpecBranchIDs  branch added ${branchID}")
                 }
-                getSpecMarkers(allIds) //Must be transfered in an array, as the overRide methods can become stacked with extra data within a singlke variable
+                displaySpecMarkers(allIds) //Must be transfered as an array, as the overRide methods can become stacked with extra data within a single variable
             }
             override fun onCancelled(p0: DatabaseError) {
-
+                Log.d("MapsActivity", "getSpecBranchIDs Error ${p0.message}")
+                displayAllMarkers()//If fails, try to display all markers
             }
         })
     }
 
-    private fun getSpecMarkers(allIds: MutableList<String>) { //Display each marker for the specific plant
-        Log.d("MapsActivity","getSpecMarkers BranchID ${allIds.size}}")
-
+    private fun displaySpecMarkers(allIds: MutableList<String>) { //Display each marker for the specific plant, using an array of String to hold each branchID for Firebase
         for (branchID in allIds){
             var path = basePath + branchID
             val ref = FirebaseDatabase.getInstance().getReference(path)
             ref.addListenerForSingleValueEvent(object: ValueEventListener{
                 override fun onDataChange(p0: DataSnapshot) {
                     p0.children.forEach{
-                        Log.d("MapsActivity"," Got to getSpecMarkers Value = ${p0}")
                         val currentBranch = p0.getValue(Branch::class.java)
                         val longitude = currentBranch?.longitude!!.toDouble()
                         val latitude = currentBranch?.latitude!!.toDouble()
                         val branchName = currentBranch?.name.toString()
                         val branch = LatLng(latitude, longitude)
-                           mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
-                           Log.d("MapsActivity","ADDED MARK + X = ${longitude},  Branch = ${branchName}")
+                        mMap.addMarker(MarkerOptions().position(branch).title("${branchName}"))
+                        Log.d("MapsActivity", "displaySpecMarkers Marker added ${branchName}")
                     }
                 }
                 override fun onCancelled(p0: DatabaseError) {
+                    Log.d("MapsActivity", "displaySpecMarkers Error ${p0.message}")
+                    displayAllMarkers()//If fails, try to display all markers
                 }
             })
         }
@@ -290,7 +302,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap = googleMap
 
-        getLocation()
+        getLocation() //Gets current location
 
         // Add a marker in Sydney and move the camera
      //   val sydney = LatLng(50.375356, -4.140875)
@@ -301,7 +313,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-        //getAllMarkers()//for testing, stopped this
+        //displayAllMarkers()//for testing, stopped this
 
     }
 
@@ -309,7 +321,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-    fun getAllMarkers(){
+    fun displayAllMarkers(){
         val ref = FirebaseDatabase.getInstance().getReference(basePath)
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
