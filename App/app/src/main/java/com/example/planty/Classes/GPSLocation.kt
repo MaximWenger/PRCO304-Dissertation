@@ -20,10 +20,9 @@ class GPSLocation {
     private var locationNetwork : Location? = null
     private lateinit var locationManager: LocationManager
     private lateinit var currentLatLng: LatLng
-    private lateinit var mMap: GoogleMap
 
     @SuppressLint("MissingPermission")
-    fun getLocation(locManager: LocationManager): LatLng {
+    fun getLocation(locManager: LocationManager): LatLng { //Returns the user GPS location
         locationManager = locManager
         hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)

@@ -3,7 +3,6 @@ package com.example.planty.Activities
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,10 +10,12 @@ import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.example.planty.Classes.CloudVisionData
 import com.example.planty.Classes.GPSLocation
 import com.example.planty.R
 import com.example.planty.Objects.Branch
+import com.example.planty.Objects.Identified
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -27,18 +28,13 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.android.synthetic.main.activity_maps.*
 import java.lang.Exception
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var locationManager: LocationManager
-    private lateinit var currentLatLng: LatLng
-
-    private var hasGps = false
-    private var hasNetwork = false
-    private var locationGps : Location? = null
-    private var locationNetwork : Location? = null
 
     private var basePath = "/branches/"
     private var attemptCounter = 0
@@ -56,6 +52,105 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         verifyLoggedIn()//check the User is logged in
 
         populateSpecificMarkers()
+        populatePrevIdentified()
+    }
+
+    private fun populatePrevIdentified(){
+        getLatestIdentifications()
+        //find latest identifciations
+        //Display those details
+    }
+
+    private fun getLatestIdentifications(){ //Unable to put into other class, due to the override functions, and delay on waiting for download
+        Log.d("MapsActivity", "GOT TO getLatestIdentifications")
+        val currentIdUUID = getIdentifiedPlantUUID()
+        var identifications: MutableList<Identified> = mutableListOf<Identified>()
+        val uid = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uid}")
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                p0.children.forEach {
+                    if (it.key.toString() != currentIdUUID) { //Checking that the current identified plant is not saved to the array
+                        val userIdentified = (it.getValue(Identified::class.java))
+                        Log.d("MapsActivity","User ${userIdentified!!.identifiedImage}")
+                        identifications.add(userIdentified)//Adds the identifications to the Identifications array
+                    }
+                }
+                displayIdentifications(identifications)
+                Log.d("MapsActivity","111Running through SIZE= ${identifications?.size}")
+                //sortList()//Going to display first, then sort
+            }
+            //Once all the identifications have been added to the list, sort them in date order
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d("MapsActivity", "getLatestIdentifications Error = ${p0.message}")
+            }
+        })
+    }
+
+    private fun displayIdentifications(identifications: MutableList<Identified>){//used to populate the previously identified details
+        Log.d("MapsActivity", "GOT TO displayIdentifications Size = ${identifications.size}, amended size = ${identifications.size-1}")
+        var size = identifications.size
+        if (size-1 >= 3) {
+            displayId0(identifications[0])//Display relivent fields
+            displayId1(identifications[1])
+            displayId2(identifications[2])
+            displayId3(identifications[3])
+        }else if (size-1 >= 2){
+            displayId0(identifications[0])
+            displayId1(identifications[1])
+            displayId2(identifications[2])
+            hideDisplayID3()
+        }else if (size-1 >= 1){
+            displayId0(identifications[0])
+            displayId1(identifications[1])
+            hideDisplayID2()
+            hideDisplayID3()
+        }else if (size > 0 ){
+            displayId0(identifications[0])
+            hideDisplayID1()
+            hideDisplayID2()
+            hideDisplayID3()
+        }
+        else{
+            hideDisplayID0()//Hide all fields
+            hideDisplayID1()
+            hideDisplayID2()
+            hideDisplayID3()
+        }
+
+    }
+    private fun displayId0(ident: Identified){
+        Log.d("MapsActivity", "GOT TO displayId1")
+        MapsActivity_PrevID0_Name.text = ident.plantName
+        //Display image
+    }
+    private fun displayId1(ident: Identified){
+        Log.d("MapsActivity", "GOT TO displayId1")
+        MapsActivity_PrevID1_Name.text = ident.plantName
+        //Display image
+    }
+    private fun displayId2(ident: Identified){
+        Log.d("MapsActivity", "GOT TO displayId1")
+        MapsActivity_PrevID2_Name.text = ident.plantName
+        //Display image
+    }
+    private fun displayId3(ident: Identified){
+        Log.d("MapsActivity", "GOT TO displayId1")
+        MapsActivity_PrevID3_Name.text = ident.plantName
+        //Display image
+    }
+
+    private fun hideDisplayID0(){
+        MapsActivity_PrevID0_Name.visibility = View.INVISIBLE
+    }
+    private fun hideDisplayID1(){
+        MapsActivity_PrevID1_Name.visibility = View.INVISIBLE
+    }
+    private fun hideDisplayID2(){
+        MapsActivity_PrevID2_Name.visibility = View.INVISIBLE
+    }
+    private fun hideDisplayID3(){
+        MapsActivity_PrevID3_Name.visibility = View.INVISIBLE
     }
 
     private fun populateSpecificMarkers(){ //Popualte the markers for the branches (individual branches or all branches)
@@ -65,7 +160,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             var baseId = getBaseIdent()//Return baseId
             getSpecPlants(plantName, baseId) //Display the markers for branches which sell the plant
         }
-
         else if (baseID.isNotEmpty()){
             var path = "/basePlants/" + baseID
             getSpecBranchIDs(path)
@@ -83,12 +177,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
       mMap.isMyLocationEnabled = true
       updateLocation(currentGPS)
   }
-  catch(e: Exception){
+  catch(e: Exception){//If there's an issue with the currentGPS
       Log.d("MapsActivity", "populateGPS Error ${e.message}")
       startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) //If location settings are not accepted, redirect user to turn on location settings
-  }
-
-
+         }
     }
 
     private fun updateLocation(gps: LatLng){ //Used to update the user Map location

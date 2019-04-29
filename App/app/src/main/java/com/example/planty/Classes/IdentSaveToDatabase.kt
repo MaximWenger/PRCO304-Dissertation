@@ -9,16 +9,15 @@ class IdentSaveToDatabase {
 
      fun saveIdentToDatabase(correctIdent: Identified): String {//Save correct identification to database
         val uuid = UUID.randomUUID().toString() //Produce unique ID for ident file name
-        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uuid}")
+         val userUUID = FirebaseAuth.getInstance().uid.toString()
+        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${userUUID}/${uuid}")
         ref.setValue(correctIdent)
          return uuid
     }
 
      fun getIdentObject(plantName: String, identImageName: String, defaultDesc: String, baseIdentity: String): Identified {//returns identified object, populated with details of identifed plant
-        val uid = FirebaseAuth.getInstance().uid.toString()
         val dateTime = DateTime().getDateTime()
         val correctIdent = Identified(
-            uid,
             dateTime,
             plantName,
             baseIdentity,
