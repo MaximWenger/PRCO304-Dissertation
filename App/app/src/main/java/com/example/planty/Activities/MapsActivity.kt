@@ -12,7 +12,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.example.planty.Classes.CloudVisionData
-import com.example.planty.Classes.FirebaseImage
 import com.example.planty.Classes.GPSLocation
 import com.example.planty.R
 import com.example.planty.Objects.Branch
@@ -31,7 +30,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_identified.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import java.lang.Exception
 
@@ -42,6 +40,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var basePath = "/branches/"
     private var attemptCounter = 0
+    var keys: MutableList<String> = mutableListOf<String>()//Used to store the keys for previouslyIdentified plants
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +57,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         populateSpecificMarkers()
         populatePrevIdentified()
+
+        MapsActivity_PrevID0_Btn.setOnClickListener{
+            Log.d("MapsActivity","BUTTON PRESSED ${keys[0]}")
+            mMap.clear()//Clear the markers from the map
+            findSpecificIdentified(keys[0])//Find and display the markers for this specific plant
+        }
+        MapsActivity_PrevID1_Btn.setOnClickListener{
+            Log.d("MapsActivity","BUTTON PRESSED ${keys[1]}")
+            mMap.clear()
+            findSpecificIdentified(keys[1])
+        }
+        MapsActivity_PrevID2_Btn.setOnClickListener{
+            mMap.clear()
+            findSpecificIdentified(keys[2])
+        }
+        MapsActivity_PrevID3_Btn.setOnClickListener{
+            mMap.clear()
+            findSpecificIdentified(keys[3])
+        }
+
     }
 
     private fun populatePrevIdentified() {
@@ -68,6 +89,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Log.d("MapsActivity", "GOT TO getLatestIdentifications")
         val currentIdUUID = getIdentifiedPlantUUID()
         var identifications: MutableList<Identified> = mutableListOf<Identified>()
+
+
         val uid = FirebaseAuth.getInstance().uid
         val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uid}")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -77,6 +100,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val userIdentified = (it.getValue(Identified::class.java))
                         Log.d("MapsActivity", "User ${userIdentified!!.identifiedImage}")
                         identifications.add(userIdentified)//Adds the identifications to the Identifications array
+                        keys.add(it.key.toString())
                     }
                 }
                 displayIdentifications(identifications)
@@ -128,6 +152,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun displayId0(ident: Identified) {
         Log.d("MapsActivity", "GOT TO displayId1")
+
         MapsActivity_PrevID0_Name.text = ident.plantName
         MapsActivity_PrevID0_Desc.text = ident.baseID
       var imgLoc = displayIdentImage(ident.identifiedImage, 0)
@@ -181,7 +206,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 //return imgLoc
     }
-private fun populateImgLoc(imgLoc: String?, imageNumb: Int){
+    private fun populateImgLoc(imgLoc: String?, imageNumb: Int){
     when(imageNumb){
         0 -> Picasso.get().load(imgLoc).rotate(90f).resize(150,200).into(MapsActivity_PrevID0_Img)
         1 -> Picasso.get().load(imgLoc).rotate(90f).resize(150,200).into(MapsActivity_PrevID1_Img)
@@ -214,6 +239,23 @@ private fun populateImgLoc(imgLoc: String?, imageNumb: Int){
         MapsActivity_PrevID3_Desc.visibility = View.INVISIBLE
         MapsActivity_PrevID3_Btn.visibility = View.INVISIBLE
         MapsActivity_PrevID3_Img.visibility = View.INVISIBLE
+    }
+
+    private fun findSpecificIdentified(key: String) {//Used to retreve the plantName and baseID to then be used in getSpecPlants
+        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${FirebaseAuth.getInstance().uid}/${key}")
+        ref.addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot){
+                p0.children.forEach{
+                val currentIdent = p0.getValue(Identified::class.java)
+                    var plantName = currentIdent!!.plantName
+                    var baseID = currentIdent!!.baseID
+                    getSpecPlants(plantName, baseID) //Used to populate the actual markers
+                }
+            }
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d("MapsActivity", "findSpecificIdentified Error ${p0.message}")
+            }
+        })
     }
 
     private fun populateSpecificMarkers(){ //Popualte the markers for the branches (individual branches or all branches)
@@ -258,7 +300,7 @@ private fun populateImgLoc(imgLoc: String?, imageNumb: Int){
        return false
     }
 
-    private fun getSpecPlants(plantName: String, baseIdent: String){ //Used to match the PlantName to any plant names within the database
+    private fun getSpecPlants(plantName: String, baseIdent: String){ //Used to match the PlantName or baseID to any plant names or baseID within the database
         var matchKey = ""
         val specPlants = "specPlants"
         var baseIdentLibrarySize = CloudVisionData().getBaseIdentLibrary().size
@@ -277,9 +319,9 @@ private fun populateImgLoc(imgLoc: String?, imageNumb: Int){
                 }
                 if (matchKey == "" && attemptCounter == 0){//If the plantID has not been found in the database, resort to checking every baseId for the plantName
                     attemptAllBaseIdent(plantName)//Must be here to deal with download latency, if placed outside of loop, will always return as default
-                    attemptCounter++
+                    attemptCounter++//Attempt counter ensures that the loop only continues through every baseID
                 }
-                attemptCounter++
+                attemptCounter++//Attempt counter ensures that the loop only continues through every baseID
                 if (matchKey == "" && attemptCounter > baseIdentLibrarySize ){//If the key hasnt been found & every baseID has been checked, display all branches within the baseID
                     populateSingleBaseIdent() //Populate map with a marker for every branch within baseIdent
                 }
