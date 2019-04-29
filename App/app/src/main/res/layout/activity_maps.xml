@@ -86,29 +86,29 @@
             android:layout_marginStart="16dp"
             app:layout_constraintTop_toTopOf="@+id/MapsActivity_PrevID3_Name"/>
     <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" app:srcCompat="@android:drawable/btn_star_big_on"
+            android:layout_width="117dp"
+            android:layout_height="72dp" app:srcCompat="@android:drawable/btn_star_big_on"
             android:id="@+id/MapsActivity_PrevID0_Img"
             android:layout_marginTop="40dp"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp"/>
     <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" app:srcCompat="@android:drawable/btn_star_big_on"
+            android:layout_width="117dp"
+            android:layout_height="72dp" app:srcCompat="@android:drawable/btn_star_big_on"
             android:id="@+id/MapsActivity_PrevID1_Img" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/MapsActivity_PrevID0_Img"
             app:layout_constraintStart_toStartOf="@+id/MapsActivity_PrevID0_Img"
     />
     <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" app:srcCompat="@android:drawable/btn_star_big_on"
+            android:layout_width="117dp"
+            android:layout_height="72dp" app:srcCompat="@android:drawable/btn_star_big_on"
             android:id="@+id/MapsActivity_PrevID2_Img" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/MapsActivity_PrevID1_Img"
             app:layout_constraintStart_toStartOf="@+id/MapsActivity_PrevID1_Img"
     />
     <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" app:srcCompat="@android:drawable/btn_star_big_on"
+            android:layout_width="117dp"
+            android:layout_height="72dp" app:srcCompat="@android:drawable/btn_star_big_on"
             android:id="@+id/MapsActivity_PrevID3_Img" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/MapsActivity_PrevID2_Img"
             app:layout_constraintStart_toStartOf="@+id/MapsActivity_PrevID2_Img"

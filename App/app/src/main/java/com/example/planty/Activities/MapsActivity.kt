@@ -12,10 +12,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.example.planty.Classes.CloudVisionData
+import com.example.planty.Classes.FirebaseImage
 import com.example.planty.Classes.GPSLocation
 import com.example.planty.R
 import com.example.planty.Objects.Branch
 import com.example.planty.Objects.Identified
+import com.example.planty.Objects.UserImage
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -28,6 +30,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_identified.*
 import kotlinx.android.synthetic.main.activity_maps.*
 import java.lang.Exception
 
@@ -38,7 +42,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var basePath = "/branches/"
     private var attemptCounter = 0
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,13 +58,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         populatePrevIdentified()
     }
 
-    private fun populatePrevIdentified(){
+    private fun populatePrevIdentified() {
         getLatestIdentifications()
         //find latest identifciations
         //Display those details
     }
 
-    private fun getLatestIdentifications(){ //Unable to put into other class, due to the override functions, and delay on waiting for download
+    private fun getLatestIdentifications() { //Unable to put into other class, due to the override functions, and delay on waiting for download
         Log.d("MapsActivity", "GOT TO getLatestIdentifications")
         val currentIdUUID = getIdentifiedPlantUUID()
         var identifications: MutableList<Identified> = mutableListOf<Identified>()
@@ -72,14 +75,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 p0.children.forEach {
                     if (it.key.toString() != currentIdUUID) { //Checking that the current identified plant is not saved to the array
                         val userIdentified = (it.getValue(Identified::class.java))
-                        Log.d("MapsActivity","User ${userIdentified!!.identifiedImage}")
+                        Log.d("MapsActivity", "User ${userIdentified!!.identifiedImage}")
                         identifications.add(userIdentified)//Adds the identifications to the Identifications array
                     }
                 }
                 displayIdentifications(identifications)
-                Log.d("MapsActivity","111Running through SIZE= ${identifications?.size}")
+                Log.d("MapsActivity", "111Running through SIZE= ${identifications?.size}")
                 //sortList()//Going to display first, then sort
             }
+
             //Once all the identifications have been added to the list, sort them in date order
             override fun onCancelled(p0: DatabaseError) {
                 Log.d("MapsActivity", "getLatestIdentifications Error = ${p0.message}")
@@ -87,31 +91,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    private fun displayIdentifications(identifications: MutableList<Identified>){//used to populate the previously identified details
-        Log.d("MapsActivity", "GOT TO displayIdentifications Size = ${identifications.size}, amended size = ${identifications.size-1}")
+    private fun displayIdentifications(identifications: MutableList<Identified>) {//used to populate the previously identified details
+        Log.d(
+            "MapsActivity",
+            "GOT TO displayIdentifications Size = ${identifications.size}, amended size = ${identifications.size - 1}"
+        )
         var size = identifications.size
-        if (size-1 >= 3) {
+        if (size - 1 >= 3) {
             displayId0(identifications[0])//Display relivent fields
             displayId1(identifications[1])
             displayId2(identifications[2])
             displayId3(identifications[3])
-        }else if (size-1 >= 2){
+        } else if (size - 1 >= 2) {
             displayId0(identifications[0])
             displayId1(identifications[1])
             displayId2(identifications[2])
             hideDisplayID3()
-        }else if (size-1 >= 1){
+        } else if (size - 1 >= 1) {
             displayId0(identifications[0])
             displayId1(identifications[1])
             hideDisplayID2()
             hideDisplayID3()
-        }else if (size > 0 ){
+        } else if (size > 0) {
             displayId0(identifications[0])
             hideDisplayID1()
             hideDisplayID2()
             hideDisplayID3()
-        }
-        else{
+        } else {
             hideDisplayID0()//Hide all fields
             hideDisplayID1()
             hideDisplayID2()
@@ -119,38 +125,95 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
     }
-    private fun displayId0(ident: Identified){
+
+    private fun displayId0(ident: Identified) {
         Log.d("MapsActivity", "GOT TO displayId1")
         MapsActivity_PrevID0_Name.text = ident.plantName
-        //Display image
-    }
-    private fun displayId1(ident: Identified){
-        Log.d("MapsActivity", "GOT TO displayId1")
-        MapsActivity_PrevID1_Name.text = ident.plantName
-        //Display image
-    }
-    private fun displayId2(ident: Identified){
-        Log.d("MapsActivity", "GOT TO displayId1")
-        MapsActivity_PrevID2_Name.text = ident.plantName
-        //Display image
-    }
-    private fun displayId3(ident: Identified){
-        Log.d("MapsActivity", "GOT TO displayId1")
-        MapsActivity_PrevID3_Name.text = ident.plantName
+        MapsActivity_PrevID0_Desc.text = ident.baseID
+      var imgLoc = displayIdentImage(ident.identifiedImage, 0)
+        Log.d("MapsActivity", "displayId0 imgLoc = ${imgLoc}")
+       // Picasso.get().load(imgLoc).into(identified_userImage)
+
         //Display image
     }
 
-    private fun hideDisplayID0(){
+    private fun displayId1(ident: Identified) {
+        Log.d("MapsActivity", "GOT TO displayId1")
+        MapsActivity_PrevID1_Name.text = ident.plantName
+        MapsActivity_PrevID1_Desc.text = ident.baseID
+        var imgLoc = displayIdentImage(ident.identifiedImage, 1)
+        //Display image
+    }
+
+    private fun displayId2(ident: Identified) {
+        Log.d("MapsActivity", "GOT TO displayId1")
+        MapsActivity_PrevID2_Name.text = ident.plantName
+        MapsActivity_PrevID2_Desc.text = ident.baseID
+        var imgLoc = displayIdentImage(ident.identifiedImage, 2)
+        //Display image
+    }
+
+    private fun displayId3(ident: Identified) {
+        Log.d("MapsActivity", "GOT TO displayId1")
+        MapsActivity_PrevID3_Name.text = ident.plantName
+        MapsActivity_PrevID3_Desc.text = ident.baseID
+        var imgLoc = displayIdentImage(ident.identifiedImage, 3)
+        //Display image
+    }
+
+    private fun displayIdentImage(imageUUID: String, imageNumb: Int){
+        var imgLoc: String? =""
+        val ref = FirebaseDatabase.getInstance().getReference("/userImages/${imageUUID}")
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                p0.children.forEach {
+                    val currentImage = p0.getValue(UserImage::class.java)
+                     imgLoc = currentImage?.imageLoc
+                    populateImgLoc(imgLoc, imageNumb)
+                    Log.d("MapsActivity", "PRINT IMAGELOC ${imgLoc}")
+                }
+            }
+            //Once all the identifications have been added to the list, sort them in date order
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d("MapsActivity", "displayIdentImage Error = ${p0.message}")
+            }
+        })
+
+//return imgLoc
+    }
+private fun populateImgLoc(imgLoc: String?, imageNumb: Int){
+    when(imageNumb){
+        0 -> Picasso.get().load(imgLoc).rotate(90f).resize(150,200).into(MapsActivity_PrevID0_Img)
+        1 -> Picasso.get().load(imgLoc).rotate(90f).resize(150,200).into(MapsActivity_PrevID1_Img)
+        2 -> Picasso.get().load(imgLoc).rotate(90f).resize(150,200).into(MapsActivity_PrevID2_Img)
+        3 -> Picasso.get().load(imgLoc).rotate(90f).resize(150,200).into(MapsActivity_PrevID3_Img)
+    }
+}
+
+
+    private fun hideDisplayID0(){//Hides unused previously identified fields
         MapsActivity_PrevID0_Name.visibility = View.INVISIBLE
+        MapsActivity_PrevID0_Desc.visibility = View.INVISIBLE
+        MapsActivity_PrevID0_Btn.visibility = View.INVISIBLE
+        MapsActivity_PrevID0_Img.visibility = View.INVISIBLE
     }
-    private fun hideDisplayID1(){
+    private fun hideDisplayID1(){//Hides unused previously identified fields
         MapsActivity_PrevID1_Name.visibility = View.INVISIBLE
+        MapsActivity_PrevID1_Desc.visibility = View.INVISIBLE
+        MapsActivity_PrevID1_Btn.visibility = View.INVISIBLE
+        MapsActivity_PrevID1_Img.visibility = View.INVISIBLE
     }
-    private fun hideDisplayID2(){
+    private fun hideDisplayID2(){//Hides unused previously identified fields
         MapsActivity_PrevID2_Name.visibility = View.INVISIBLE
+        MapsActivity_PrevID2_Desc.visibility = View.INVISIBLE
+        MapsActivity_PrevID2_Btn.visibility = View.INVISIBLE
+        MapsActivity_PrevID2_Img.visibility = View.INVISIBLE
     }
-    private fun hideDisplayID3(){
+    private fun hideDisplayID3(){//Hides unused previously identified fields
         MapsActivity_PrevID3_Name.visibility = View.INVISIBLE
+        MapsActivity_PrevID3_Desc.visibility = View.INVISIBLE
+        MapsActivity_PrevID3_Btn.visibility = View.INVISIBLE
+        MapsActivity_PrevID3_Img.visibility = View.INVISIBLE
     }
 
     private fun populateSpecificMarkers(){ //Popualte the markers for the branches (individual branches or all branches)

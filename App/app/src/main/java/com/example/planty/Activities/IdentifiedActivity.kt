@@ -99,7 +99,7 @@ class IdentifiedActivity : AppCompatActivity() {
             if (it.key.toString() == imageName) { //Compares the imageName to the Id name, to confirm the correct image details are loaded
                 val currentImage = it.getValue(UserImage::class.java)
                 val imgLoc = currentImage?.imageLoc
-                Picasso.get().load(imgLoc).into(identified_userImage)
+                Picasso.get().load(imgLoc).rotate(90f).into(identified_userImage)
                 retryLoad = false
             }
         }
