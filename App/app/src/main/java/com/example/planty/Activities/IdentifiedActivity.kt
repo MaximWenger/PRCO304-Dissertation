@@ -43,7 +43,6 @@ class IdentifiedActivity : AppCompatActivity() {
 
 
         identified_button0.setOnClickListener {//If ID 0 clicked
-
             val plantName = identified_name_textview0.text.toString()
             saveIdentChangeActiv(plantName)
             navToMapsActivityWithIdent(plantName)
@@ -63,6 +62,9 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Changes to MapsActivity, saving plantName, baseIdent and IdentifiedPlantUUID in intents
+     * @param plantName Plant Name
+     */
     private fun navToMapsActivityWithIdent(plantName: String){//Navigates to the Maps Activity, with the PlantName and baseIdent
         val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
@@ -72,12 +74,13 @@ class IdentifiedActivity : AppCompatActivity() {
         startActivity(intent) //Change to new class
     }
 
-
-
-
+    /**Retrieves all user Images and passes them within DataSnapShot object to getImgLoc()
+     *
+     */
     private fun populateUserImage(){//used to populate the user image at the top of the screen
         try {
-            val ref = FirebaseDatabase.getInstance().getReference("/userImages")
+            val uid = FirebaseAuth.getInstance().uid
+            val ref = FirebaseDatabase.getInstance().getReference("/userImages/$uid")
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(p0: DataSnapshot) {
                     getImgLoc(p0)
@@ -92,6 +95,9 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Populates the plant being Identified Image at the top of the activity
+     * @param p0 Object holding all UserImage objects
+     */
     private fun getImgLoc(p0: DataSnapshot){
         var imageName = getImageFileName()
         var retryLoad = true //Used to determine if the image has been loaded yet
@@ -108,6 +114,10 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Calls populateUserImage() after 500ms to try and load the image
+     * This is used, as the image may not have been saved to Firebase yet, so a re-attempt to download the image is
+     * required
+     */
     private fun retryImageLoad(){//Attempts to reload the image ever 500ms, if the image is not yet saved to firebase
        //Must be re-attempted untill the file is found, this function can load faster than the file is saved to firebase
             Timer("Retry Image Load", false).schedule(500) {
@@ -115,6 +125,9 @@ class IdentifiedActivity : AppCompatActivity() {
             }
     }
 
+    /**Saves the identification to the database
+     * @param Plant Name
+     */
     private fun saveIdentChangeActiv(plantName: String){ //Uses the givenPlant name & saves the identifed Image
         val identImageName = getImageFileName()
         val defaultDesc = ""
@@ -122,7 +135,9 @@ class IdentifiedActivity : AppCompatActivity() {
         identifiedPlantUUID = IdentSaveToDatabase().saveIdentToDatabase(correctIdent)
     }
 
-
+    /**Populates baseIdent Global Var with the baseIdent
+     *
+     */
     private fun populateBaseIdent(){
         try {
             baseIdent = intent.getStringExtra("baseIdent")
@@ -131,6 +146,9 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Populates identifiedString Global Var with List of identifications (e.g.Text, confidence)
+     *
+     */
     private fun populateIdentifiedString(){
         try {
             identifiedString = intent.getStringArrayListExtra("identifications")
@@ -139,6 +157,9 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Returns the imageFileName (UUID)
+     *
+     */
     private fun getImageFileName(): String { //Return filename (UUID) for saved image
         var filename = ""
         try {
@@ -151,7 +172,9 @@ class IdentifiedActivity : AppCompatActivity() {
     }
 
 
-
+    /**Calls populateIdentx() to Populate and hideIdentx() to Hide the relevant Identification fields
+     *
+     */
     private fun populateIDRows(){//Populate the text fields
         if (identifiedString.size == 3) { //If only one identification
             Log.d("IdentifiedActivity", "Got to 3")
@@ -173,6 +196,9 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Hides the fields for Identification1
+     *
+     */
     private fun hideIdent1(){ //Hide the textviews, image and button
         identified_image1.visibility = View.INVISIBLE
         identified_name1.visibility = View.INVISIBLE
@@ -183,6 +209,9 @@ class IdentifiedActivity : AppCompatActivity() {
         identified_descriptionTextview1.visibility = View.INVISIBLE
     }
 
+    /**Hides the fields for Identification2
+     *
+     */
     private fun hideIdent2(){//Hide the textviews, image and button
         identified_image2.visibility = View.INVISIBLE
         identified_name2.visibility = View.INVISIBLE
@@ -193,6 +222,9 @@ class IdentifiedActivity : AppCompatActivity() {
         identified_descriptionTextview2.visibility = View.INVISIBLE
     }
 
+    /**Populates Ident0 with identification data
+     * @param identifiedString List containing identification data
+     */
     private fun populateIdent0(identifiedString: ArrayList<String>){//Populate the textfields with the identification information
         try {
             var singleIdent = DataSort().getSingleIdent(identifiedString, 0)//Make a local copy of the first three items
@@ -205,6 +237,9 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Populates Ident1 with identification data
+     * @param identifiedString List containing identification data
+     */
     private fun populateIdent1(identifiedString: ArrayList<String>){//Populate the textfields with the identification information
         try {
             var singleIdent = DataSort().getSingleIdent(identifiedString, 3)
@@ -216,6 +251,9 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Populates Ident2 with identification data
+     * @param identifiedString List containing identification data
+     */
     private fun populateIdent2(identifiedString: ArrayList<String>){//Populate the textfields with the identification information
         try {
             var singleIdent = DataSort().getSingleIdent(identifiedString, 6)
@@ -236,6 +274,9 @@ class IdentifiedActivity : AppCompatActivity() {
     //have an temp image for each plant
     //redownload the identified plant
 
+    /**Checks the user is logged in, returns to Login if not logged in
+     *
+     */
     private fun verifyLoggedIn(){ //Check if the User is already logged in, if not, return User to registerActivity
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null){//If no user ID, user is not logged in
@@ -245,11 +286,17 @@ class IdentifiedActivity : AppCompatActivity() {
         }
     }
 
+    /**Inflates the Options menu in the top right of the activity
+     *
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean { //Create the menu
         menuInflater.inflate(R.menu.nav_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
+    /**Calls methods when a specific menu option is selected
+     *
+     */
     override fun onOptionsItemSelected(item: MenuItem?): Boolean { //When an option from the menu is clicked
         when (item?.itemId){ //Switch statement
             R.id.nav_Profile -> { //DOES NOTHING RIGHT NOW
@@ -272,6 +319,9 @@ class IdentifiedActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    /**Sings the user out and returns to the login screen
+     *
+     */
     private fun signOut(){
         FirebaseAuth.getInstance().signOut()
         val intent = Intent(this, RegisterActivity::class.java)
@@ -279,24 +329,37 @@ class IdentifiedActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    /**Changes to MapsActivity
+     *
+     */
     private fun navToMapsActivity(){
         val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
     }
 
+    /**Changes to ProfileActivity
+     *
+     */
     private fun navToProfileActivity(){
         val intent = Intent(this, ProfileActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
     }
 
+    /**Changes to IdentifyActivity
+     *
+     */
     private fun navToIdentifyActivity() {
         val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
     }
 
+    /**Changes to SelfIdentifyAcitvity
+     * Saves fileName within intent
+     *
+     */
     private fun navToSelfIdentifyActivity(){
         val intent = Intent(this, SelfIdentifyActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack

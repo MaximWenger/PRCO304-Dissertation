@@ -141,7 +141,8 @@ class SelfIdentifyActivity : AppCompatActivity() {
 
     private fun populateUserImage(){//used to populate the user image at the top of the screen
         try {
-            val ref = FirebaseDatabase.getInstance().getReference("/userImages")
+            val uid = FirebaseAuth.getInstance().uid
+            val ref = FirebaseDatabase.getInstance().getReference("/userImages/$uid")
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(p0: DataSnapshot) {
                     getImgLoc(p0)
