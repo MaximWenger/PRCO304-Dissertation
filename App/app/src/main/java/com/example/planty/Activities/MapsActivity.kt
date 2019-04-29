@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,6 +12,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.example.planty.Classes.CloudVisionData
+import com.example.planty.Classes.GPSLocation
 import com.example.planty.R
 import com.example.planty.Objects.Branch
 
@@ -76,65 +76,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     @SuppressLint("MissingPermission")
-    private fun getLocation(){
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        if (hasGps || hasNetwork){
-            if (hasGps) {
-                Log.d("MapsActivity", "HasGPS")
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0F, object : LocationListener {
-                    override fun onLocationChanged(location: Location?) {
-                        if (location != null){
-                            locationGps = location
+    private fun populateGPS(){//Populate the user GPS locations
+  try {
+      locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+      var currentGPS = GPSLocation().getLocation(locationManager)
+      mMap.isMyLocationEnabled = true
+      updateLocation(currentGPS)
+  }
+  catch(e: Exception){
+      Log.d("MapsActivity", "populateGPS Error ${e.message}")
+      startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) //If location settings are not accepted, redirect user to turn on location settings
+  }
 
-                        }
-                    }
-                    override fun onProviderDisabled(provider: String?) {}
-                    override fun onProviderEnabled(provider: String?) {}
-                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                })
-            val localGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                if (localGpsLocation != null){
-                    locationGps = localGpsLocation
-                }
-            }
-            if (hasNetwork) {
-               Log.d("MapsActivity", "HasNetwork")
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0F, object : LocationListener {
-                    override fun onLocationChanged(location: Location?) {
-                        if (location != null){
-                            locationNetwork = location
 
-                          }
-                    }
-                    override fun onProviderDisabled(provider: String?) {}
-                    override fun onProviderEnabled(provider: String?) {}
-                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                })
-                val localNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-                if (localNetworkLocation != null){
-                    locationNetwork = localNetworkLocation
-                }
-        }
-            if (locationNetwork != null){
-                currentLatLng = LatLng(locationNetwork!!.latitude, locationNetwork!!.longitude)
-                mMap.isMyLocationEnabled = true
-                updateLocation()
-            }
-            if (locationGps != null){
-                currentLatLng = LatLng(locationGps!!.latitude, locationGps!!.longitude)
-                mMap.isMyLocationEnabled = true
-                updateLocation()
-            }
-        }
-        else{
-            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) //If location settings are not accepted, redirect user to turn on location settings
-        }
     }
 
-    private fun updateLocation(){ //Used to update the user Map location
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 8.0f)) //Moves camera to this point
+    private fun updateLocation(gps: LatLng){ //Used to update the user Map location
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gps, 8.0f)) //Moves camera to this point
     }
 
     private fun processMatchData(lowerCaseKey: String, lowerCasePlantName: String): Boolean {
@@ -295,8 +253,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap = googleMap
 
-        getLocation() //Gets current location
-
+       // GPSLocation().getLocation() //Gets current location
+        populateGPS()
 
         // Add a marker in Sydney and move the camera
      //   val sydney = LatLng(50.375356, -4.140875)
