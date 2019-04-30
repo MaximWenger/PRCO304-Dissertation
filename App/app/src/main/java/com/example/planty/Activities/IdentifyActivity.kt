@@ -32,6 +32,7 @@ class IdentifyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identify)
         supportActionBar?.title = "Planty  |  Identify Plants"
+
         verifyLoggedIn()//check the User is logged in
         selectgallery_button_Identify.setOnClickListener{ //Called when gallery icon is selected
             getGalleryImage()// Get image from device gallery

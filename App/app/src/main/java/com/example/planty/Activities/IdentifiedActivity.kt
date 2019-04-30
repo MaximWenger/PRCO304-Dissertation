@@ -31,7 +31,7 @@ class IdentifiedActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identified)
 
-        supportActionBar?.title ="Identified!" //change activity Title
+        supportActionBar?.title = "Planty  |  Identified!"//change activity Title
 
         verifyLoggedIn()
         populateBaseIdent()

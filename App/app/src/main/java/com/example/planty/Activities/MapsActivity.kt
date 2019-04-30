@@ -138,6 +138,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             hideDisplayID2()
             hideDisplayID3()
         } else {
+            MapsActivity_TextView1.visibility = View.INVISIBLE
+            MapsActivity_TextView2.visibility = View.INVISIBLE
             hideDisplayID0()//Hide all fields
             hideDisplayID1()
             hideDisplayID2()
@@ -267,7 +269,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * @param key Unique ID, used to identify a single plant Identification within Firebase
      */
     private fun findSpecificIdentified(key: String) {//Used to retreve the plantName and baseID to then be used in getSpecPlants
-        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${FirebaseAuth.getInstance().uid}/${key}")
+        val uid = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/$uid/$key")
         ref.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(p0: DataSnapshot){
                 p0.children.forEach{
@@ -275,6 +278,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     var plantName = currentIdent!!.plantName
                     var baseID = currentIdent!!.baseID
                     getSpecPlants(plantName, baseID) //Used to populate the actual markers
+
                 }
             }
             override fun onCancelled(p0: DatabaseError) {

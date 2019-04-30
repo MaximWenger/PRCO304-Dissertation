@@ -40,7 +40,8 @@ class SelfIdentifyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_self_identify)
-        supportActionBar?.title ="Self Identify" //change activity Title
+        supportActionBar?.title = "Planty  |  Self Identify"
+
             verifyLoggedIn()
            populateSpinner()
         populateUserImage()
@@ -178,7 +179,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
             if (it.key.toString() == imageName) { //Compares the imageName to the Id name, to confirm the correct image details are loaded
                 val currentImage = it.getValue(UserImage::class.java)
                 val imgLoc = currentImage?.imageLoc
-                Picasso.get().load(imgLoc).into(SelfIdentify_PlantImage)
+                Picasso.get().load(imgLoc).rotate(90f).into(SelfIdentify_PlantImage)
                 retryLoad = false
             }
         }
