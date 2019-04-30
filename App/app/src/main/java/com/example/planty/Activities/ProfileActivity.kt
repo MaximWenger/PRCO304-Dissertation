@@ -21,11 +21,12 @@ class ProfileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_profile)
 
         verifyLoggedIn()//check the User is logged in
-
         getUserData()
-
     }
 
+    /**Gets user data
+     *
+     */
     private fun getUserData(){
         val uid = FirebaseAuth.getInstance().uid
        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
@@ -34,19 +35,17 @@ class ProfileActivity : AppCompatActivity() {
                 p0.children.forEach{
                     Log.d("profileActivity",it.toString())
                     profile_userEmail.text = FirebaseAuth.getInstance().currentUser?.email
-
-
-
-
                 }
             }
             override fun onCancelled(p0: DatabaseError) {
-
+                Log.d("profileActivity","Error getting user data")
             }
         })
-                //VIDEO 4 @ 30minutes
     }
 
+    /**Confirms the user is logged in
+     *
+     */
     private fun verifyLoggedIn(){ //Check if the User is already logged in, if not, return User to registerActivity
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null){
@@ -56,11 +55,17 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    /**Inflates the options menu in the top right
+     *
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean { //Create the menu
         menuInflater.inflate(R.menu.nav_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
+    /**Calls methods when a specific menu option is selected
+     *
+     */
     override fun onOptionsItemSelected(item: MenuItem?): Boolean { //When an option from the menu is clicked
         when (item?.itemId){ //Switch statement
             R.id.nav_Profile -> { //DOES NOTHING RIGHT NOW
@@ -83,6 +88,9 @@ class ProfileActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    /**Sings the user out and returns to the login screen
+     *
+     */
     private fun signOut(){
         FirebaseAuth.getInstance().signOut()
         val intent = Intent(this, RegisterActivity::class.java)
@@ -90,12 +98,18 @@ class ProfileActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    /**Change to MapsActivity
+     *
+     */
     private fun navToMapsActivity(){
         val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
     }
 
+    /**Change to IdentifyActivity
+     *
+     */
     private fun navToIdentifyActivity(){
         val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack

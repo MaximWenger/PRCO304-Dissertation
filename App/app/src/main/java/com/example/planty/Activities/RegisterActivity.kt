@@ -31,13 +31,18 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    /**Change to Login activity
+     *
+     */
     private fun changeActivityToLogin() {//Change activity to the login activity
         Log.d("RegisterActivity", "Trying to Log in")
-        //Launch the login activity
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
 
+    /**Register the user details with Firebase
+     *
+     */
     private fun registerUser(){//Attempt to register the new User details with Firebase
         val username = username_edittext_register.text.toString() //Get the username
         val email = email_edittext_register.text.toString() //Get the User email
@@ -55,14 +60,9 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
-        Log.d("RegisterActivity", "Email is:" + email) //DEBUG
-        Log.d("RegisterActivity", "Password: $password") //DEBUG
-
-
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 if(!it.isSuccessful) return@addOnCompleteListener
-
                 Log.d("RegisterActivity", "Successfully created User with uid: ${it.result!!.user.uid}")
                 saveUserToDataBase(username)
             }
@@ -72,20 +72,24 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
+    /**Changes to IdentifyActivity
+     *
+     */
     private fun changeActivityToHome(){
         val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
     }
 
+    /**Saves the user to the database
+     *@param Username
+     */
     private fun saveUserToDataBase(Username: String){
         Log.d("RegisterActivity", "Trying to save User") //Debug
         val role = "user"
         val uid = FirebaseAuth.getInstance().uid ?: "" //Elvis operator //Using the unique ID (Used to link authenticated User to the database within Firebase
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")//Using the unique ID (Used to link authenticated User to the database within Firebase) as a unique name within Firebase
-
         val dateTime = DateTime().getDateTime()
-
         val user = User(
             Username,
             role,

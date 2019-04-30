@@ -158,7 +158,7 @@ class IdentifiedActivity : AppCompatActivity() {
     }
 
     /**Returns the imageFileName (UUID)
-     *
+     *@return imageID (UUID)
      */
     private fun getImageFileName(): String { //Return filename (UUID) for saved image
         var filename = ""
@@ -170,7 +170,6 @@ class IdentifiedActivity : AppCompatActivity() {
         }
         return filename
     }
-
 
     /**Calls populateIdentx() to Populate and hideIdentx() to Hide the relevant Identification fields
      *

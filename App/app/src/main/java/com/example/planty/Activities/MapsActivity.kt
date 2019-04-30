@@ -118,7 +118,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         )
         var size = identifications.size
         if (size - 1 >= 3) {
-            displayId0(identifications[0])//Display relivent fields
+            displayId0(identifications[0])//Display relevant fields
             displayId1(identifications[1])
             displayId2(identifications[2])
             displayId3(identifications[3])
@@ -193,8 +193,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * @param imageNumb Denotes the specific previous identified field to populate 0-3
      */
     private fun displayIdentImage(imageUUID: String, imageNumb: Int){
+        val uid = FirebaseAuth.getInstance().uid
         var imgLoc: String? =""
-        val ref = FirebaseDatabase.getInstance().getReference("/userImages/${imageUUID}")
+        val ref = FirebaseDatabase.getInstance().getReference("/userImages/$uid/$imageUUID")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach {

@@ -21,6 +21,10 @@ class GPSLocation {
     private lateinit var locationManager: LocationManager
     private lateinit var currentLatLng: LatLng
 
+    /**Returns GPS location of device
+     * @param locManager
+     * @return LatLng (GPS) of device
+     */
     @SuppressLint("MissingPermission")
     fun getLocation(locManager: LocationManager): LatLng { //Returns the user GPS location
         locationManager = locManager

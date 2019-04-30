@@ -17,36 +17,43 @@ class LoginActivity: AppCompatActivity() { //Combatability Activity
         setContentView(R.layout.activity_login)
 
         button_login_login.setOnClickListener {
-            val email = edittext_email_login.text.toString()
-            val password = edittest_password_login.text.toString()
-
-            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener {
-                    if(it.isSuccessful){ //If the login is successful
-                        Log.d("Login", "Successfully logged in : ${it.result!!.user.uid}")
-                        Toast.makeText(this, "Logged in!", Toast.LENGTH_SHORT).show()
-
-                        changeActivityToHome() //When logged in, change activity to home
-
-                    }
-                }
-                .addOnFailureListener{ //If the login fails
-                    Log.d("Login", "Failed to log in ${it.message}")
-                    Toast.makeText(this, "Failed to log in. ${it.message}", Toast.LENGTH_SHORT).show()
-
-                }
+            logUserIn()
         }
-
         textview_backtoregistration_login.setOnClickListener {
-            Log.d("MainActivity", "Returning to Registration activity")
-
-            val intent = Intent(this,  RegisterActivity::class.java)
-            startActivity(intent)
+            changeActivitytoRegister()
         }
-
-
     }
 
+    /**Logs the user in
+     *
+     */
+    private fun logUserIn(){
+        val email = edittext_email_login.text.toString()
+        val password = edittest_password_login.text.toString()
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener {
+                if(it.isSuccessful){ //If the login is successful
+                    Toast.makeText(this, "Logged in!", Toast.LENGTH_SHORT).show()
+                    changeActivityToHome() //When logged in, change activity to home
+                }
+            }
+            .addOnFailureListener{ //If the login fails
+                Log.d("Login", "Failed to log in ${it.message}")
+                Toast.makeText(this, "Failed to log in. ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    /**Changes to RegisterActivity
+     *
+     */
+    private fun changeActivitytoRegister(){
+        val intent = Intent(this,  RegisterActivity::class.java)
+        startActivity(intent)
+    }
+
+    /**Changes to IdentifyActivity
+     *
+     */
     private fun changeActivityToHome(){
         val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
