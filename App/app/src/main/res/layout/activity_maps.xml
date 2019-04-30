@@ -147,14 +147,19 @@
             app:layout_constraintStart_toStartOf="@+id/MapsActivity_PrevID2_Img"
             android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias="0.024"/>
-    <TextView
-            android:layout_width="226dp"
-            android:layout_height="22dp" android:id="@+id/ActivityMaps_UserSearch"
+    <EditText
+            android:layout_width="271dp"
+            android:layout_height="42dp" android:id="@+id/ActivityMaps_UserSearch"
             android:layout_marginTop="52dp"
+            android:inputType="text"
+            android:ems="10"
+            android:textColor="#000000"
+            android:focusable="true"
             app:layout_constraintTop_toTopOf="parent"
             android:hint="@android:string/search_go" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginRight="8dp"/>
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+            android:clickable="true" android:editable="true"/>
     <Button
             android:text="Show"
             android:layout_width="85dp"
