@@ -236,7 +236,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
                 signOut() //Signs the User out and returns to RegisterActivity
             }
             R.id.nav_Contact -> { //DOES NOTHING RIGHT NOW
-                return super.onOptionsItemSelected(item)  //
+                navToContactUsActivity()
             }
             else ->  return super.onOptionsItemSelected(item)
         }
@@ -280,4 +280,9 @@ class SelfIdentifyActivity : AppCompatActivity() {
         startActivity(intent) //Change to new class
     }
 
+    private fun navToContactUsActivity(){
+        val intent = Intent(this, ContactUsActivity::class.java) //Populate intent with new activity class
+        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        startActivity(intent) //Change to new class
+    }
 }

@@ -25,6 +25,11 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
+        <activity android:name=".Activities.ContactUsActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".Activities.MapsActivity"/>
+        </activity>
         <activity
                 android:name=".Activities.SelfIdentifyActivity"
                 android:screenOrientation="portrait">

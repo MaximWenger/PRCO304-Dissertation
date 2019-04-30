@@ -57,6 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         populateSpecificMarkers()
         getLatestIdentifications()
+        updatePlantNameType()
 
         MapsActivity_PrevID0_Btn.setOnClickListener{
             Log.d("MapsActivity","BUTTON PRESSED ${keys[0]}")
@@ -77,6 +78,57 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             findSpecificIdentified(keys[3])
         }
 
+    }
+
+    private fun updatePlantNameType(){//Used for normal acceess to page
+        var plantName = getPlantName()
+        Log.d("MapsActivity","updatePlantNameType, PlantName = $plantName")
+        if (plantName != "") {
+            Log.d("MapsActivity","updatePlantNameType!!!!!!!!!!!!!!!!!!, PlantName = $plantName")
+            var baseId = getBaseIdent()
+            changePlantDesc(plantName, baseId)
+        }
+        else{
+            hidePlantDescTextViews()
+        }
+    }
+
+    /**Calls changePlantDesc() using Params to update Plant Desc textviews
+     * @param PlantName plantName
+     * @param baseID baseID
+     */
+    private fun updatePlantNameTypePrevID(plantName: String,baseID: String){
+        changePlantDesc(plantName, baseID)
+    }
+
+    /**Updates the Plant Desc textviews with correct plantName and BaseID
+     * @param plantName PlantName
+     * @param baseID BaseID
+     */
+    private fun changePlantDesc(plantName: String, baseID: String){
+        showPlantDescTextViews()
+        MapsActivity_CurrentPlant_TextView.text = plantName
+        MapsActivity_TypePlant_TextView.text = baseID
+    }
+
+    /**Turns Plant Desc textviews to visible
+     *
+     */
+    private fun showPlantDescTextViews(){
+        MapsActivity_CurrentPlant_TextView.visibility = View.VISIBLE
+        MapsActivity_TypePlant_TextView.visibility = View.VISIBLE
+        MapsActivity_CurrentPlant_StaticTextView.visibility = View.VISIBLE
+        MapsActivity_CurrentType_TextViewStatic.visibility = View.VISIBLE
+    }
+
+    /**Turns Plant Desc texviews to invisible
+     *
+     */
+    private fun hidePlantDescTextViews(){
+        MapsActivity_CurrentPlant_TextView.visibility = View.INVISIBLE
+        MapsActivity_TypePlant_TextView.visibility = View.INVISIBLE
+        MapsActivity_CurrentPlant_StaticTextView.visibility = View.INVISIBLE
+        MapsActivity_CurrentType_TextViewStatic.visibility = View.INVISIBLE
     }
 
     /** Calls displayIdentifications(identifications) passing MutableList of identification objects
@@ -277,6 +329,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val currentIdent = p0.getValue(Identified::class.java)
                     var plantName = currentIdent!!.plantName
                     var baseID = currentIdent!!.baseID
+                    updatePlantNameTypePrevID(plantName,baseID)//Update the current marker description
                     getSpecPlants(plantName, baseID) //Used to populate the actual markers
 
                 }
@@ -488,6 +541,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         }catch (e: Exception){
             Log.d("MapsActivity", "getBaseIdent Error = ${e.message}")
+            baseIdent = "Flower"//Default property
         }
         return baseIdent
     }
@@ -539,6 +593,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * Displays every branch from branches in Firebase
      */
     private fun displayAllMarkers(){//Display every marker from the database
+        Log.d("MapsActivity","displayAllMarkers")
         val ref = FirebaseDatabase.getInstance().getReference(basePath)
         ref.addListenerForSingleValueEvent(object: ValueEventListener{
             override fun onDataChange(p0: DataSnapshot) {
@@ -585,11 +640,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 signOut() //Signs the User out and returns to RegisterActivity
             }
             R.id.nav_Contact -> { //DOES NOTHING RIGHT NOW
-                return super.onOptionsItemSelected(item)  //
+                navToContactUsActivity()
             }
             else -> return super.onOptionsItemSelected(item)
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun navToContactUsActivity(){
+        val intent = Intent(this, ContactUsActivity::class.java) //Populate intent with new activity class
+        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        startActivity(intent) //Change to new class
     }
 
     /**Sings the user out and returns to the login screen

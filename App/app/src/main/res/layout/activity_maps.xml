@@ -8,6 +8,41 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent">
 
+    <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/MapsActivity_TypePlant_TextView"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+            app:layout_constraintTop_toTopOf="@+id/MapsActivity_CurrentType_TextViewStatic"/>
+    <TextView
+            android:text="Current Plant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/MapsActivity_CurrentPlant_TextView" app:layout_constraintStart_toEndOf="@+id/MapsActivity_CurrentPlant_StaticTextView"
+            android:layout_marginLeft="12dp" android:layout_marginStart="12dp"
+            app:layout_constraintTop_toTopOf="@+id/MapsActivity_CurrentPlant_StaticTextView"/>
+    <TextView
+            android:text="Type of Plant:"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp"
+            android:id="@+id/MapsActivity_CurrentType_TextViewStatic" app:layout_constraintEnd_toStartOf="@+id/MapsActivity_TypePlant_TextView"
+            android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+            app:layout_constraintTop_toTopOf="@+id/MapsActivity_CurrentPlant_TextView"/>
+    <TextView
+            android:text="Current Plant:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/MapsActivity_CurrentPlant_StaticTextView"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp" app:layout_constraintTop_toBottomOf="@+id/textView8"
+            android:layout_marginTop="32dp"/>
+    <TextView
+            android:text="Viewing branches which sell your identified plant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/textView8"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="48dp" app:layout_constraintTop_toBottomOf="@+id/ActivityMaps_UserSearch"/>
     <Button
             android:text="Show"
             android:layout_width="85dp"
