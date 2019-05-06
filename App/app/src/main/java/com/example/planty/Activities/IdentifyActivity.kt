@@ -9,6 +9,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.example.planty.R
 import com.example.planty.Objects.UserImage
@@ -33,6 +34,13 @@ class IdentifyActivity : AppCompatActivity() {
         setContentView(R.layout.activity_identify)
         supportActionBar?.title = "Planty  |  Identify Plants"
 
+        hideSelfIdentify()
+
+        IdentifyActivity_Button_SelfIdentify.setOnClickListener{
+            saveImageToFirebase()
+            passStringSelfIdentifyActivity()
+        }
+
         verifyLoggedIn()//check the User is logged in
         selectgallery_button_Identify.setOnClickListener{ //Called when gallery icon is selected
             getGalleryImage()// Get image from device gallery
@@ -40,6 +48,22 @@ class IdentifyActivity : AppCompatActivity() {
         selectcamera_button_Identify.setOnClickListener{
             getCameraImage()//Open device camera and use the image taken
         }
+    }
+
+    /**Hides Button and Textview for Self-identifying
+     *
+     */
+    private fun hideSelfIdentify(){
+        IdentifyActivity_Button_SelfIdentify.visibility = View.INVISIBLE
+        IdentifyActivity_TextView_ActuallyPlant.visibility = View.INVISIBLE
+    }
+
+    /**Shows Button and Textview for Self-identifying
+     *
+     */
+    private fun showSelfIdentify(){
+        IdentifyActivity_Button_SelfIdentify.visibility = View.VISIBLE
+        IdentifyActivity_TextView_ActuallyPlant.visibility = View.VISIBLE
     }
 
     /**Changes to the Camera Activity
@@ -84,8 +108,9 @@ class IdentifyActivity : AppCompatActivity() {
                                   saveImageToFirebase()              //save the image to firebase
                                     var baseIdent = CloudVisionData().baseImageIdentFilter(labels)//Return base identification
                                        var sortedList = CloudVisionData().imageDataFilter(labels) //Sort the vision data
-                                  passStringNewActivity(sortedList, baseIdent)//Pass the data to new activity & change activity
+                                  passStringIdentifiedActivity(sortedList, baseIdent)//Pass the data to new activity & change activity
                             } else { //If it is NOT a plant
+                                 showSelfIdentify()
                                 Toast.makeText(this, "This photo is not a plant, please try another photo", Toast.LENGTH_SHORT).show()
                             }
                     }
@@ -134,7 +159,7 @@ class IdentifyActivity : AppCompatActivity() {
      *@param sortedList CloudVision label data
      *@param baseIdent baseId
      */
-    private fun passStringNewActivity(sortedList: MutableList<FirebaseVisionImageLabel>, baseIdent: String){ //Passes List into ArrayList, then sends that array to the new activity. Changing the activity
+    private fun passStringIdentifiedActivity(sortedList: MutableList<FirebaseVisionImageLabel>, baseIdent: String){ //Passes List into ArrayList, then sends that array to the new activity. Changing the activity
         val intent = Intent(this, IdentifiedActivity::class.java)
         var counter = -1
         var stringList = ArrayList<String>()
@@ -147,6 +172,12 @@ class IdentifyActivity : AppCompatActivity() {
         b.putStringArrayList("identifications", stringList)
         intent.putExtras(b)
         intent.putExtra("baseIdent", baseIdent)
+        intent.putExtra("fileName",filename)
+        startActivity(intent)//Change to the new activity
+    }
+
+    private fun passStringSelfIdentifyActivity(){
+        val intent = Intent(this, SelfIdentifyActivity::class.java)
         intent.putExtra("fileName",filename)
         startActivity(intent)//Change to the new activity
     }

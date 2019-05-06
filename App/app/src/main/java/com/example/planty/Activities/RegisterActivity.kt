@@ -8,13 +8,13 @@ import android.widget.Toast
 import com.example.planty.R
 import com.example.planty.Classes.DateTime
 import com.example.planty.Objects.User
+import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.database.FirebaseDatabase
 
 
 class RegisterActivity : AppCompatActivity() {
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +59,10 @@ class RegisterActivity : AppCompatActivity() {
             Toast.makeText(this, "Please enter a password", Toast.LENGTH_SHORT).show()
             return
         }
+        else if (password.length < 5){
+            Toast.makeText(this, "Please enter a password longer than 5 characters long", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
@@ -98,7 +102,7 @@ class RegisterActivity : AppCompatActivity() {
 
         ref.setValue(user).addOnSuccessListener { //Saving the User object to the Firebase database.
             Log.d("RegisterActivity", "Saved username and unique identifer to the database")
-
+            registerUserEmail()
             changeActivityToHome() //Change actvity to homeactivity
         }
             .addOnFailureListener{
@@ -106,6 +110,20 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
+    /**Sends user an email verification
+     *
+     */
+    private fun registerUserEmail(){
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
+
+    user?.sendEmailVerification()
+        ?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("SuperTest", "Email sent.")
+            }
+        }
+}
 
 
 
