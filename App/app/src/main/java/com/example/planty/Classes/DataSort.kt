@@ -1,5 +1,6 @@
 package com.example.planty.Classes
 
+import android.util.Log
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.ArrayList
@@ -37,5 +38,18 @@ class DataSort {
         }
         return newString
     }
+
+    /**Compares the parameters to see if they contain one or another
+     * @param string1 String 1, to find inside string 2
+     * @param string2 string 2, to find inside string 1
+     * @return Boolean
+     */
+     fun findIfDataContains(string1: String, string2: String): Boolean {
+        if (string1.contains(string2) || string2.contains(string1)) {
+            return true
+        }
+        return false
+    }
+
 
 }

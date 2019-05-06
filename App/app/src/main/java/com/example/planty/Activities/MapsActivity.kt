@@ -11,8 +11,11 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import com.example.planty.Classes.CloudVisionData
+import com.example.planty.Classes.DataSort
 import com.example.planty.Classes.GPSLocation
+import com.example.planty.Classes.UserSearch
 import com.example.planty.R
 import com.example.planty.Objects.Branch
 import com.example.planty.Objects.Identified
@@ -37,6 +40,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var locationManager: LocationManager
+    private var allBranches: MutableList<Branch> = mutableListOf()//Populated by loadAndStoreAllBranches() to store all branches for user search
+    private var allUserIdentifications: MutableList<Identified> = mutableListOf<Identified>() //Populated by getLatestIdentifications() to store all user identifications for user search
 
     private var basePath = "/branches/"
     private var attemptCounter = 0
@@ -55,10 +60,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         supportActionBar?.title = "Planty  |  Find Plants"
         verifyLoggedIn()//check the User is logged in
 
+        loadAndStoreAllBranches()
+
         populateSpecificMarkers()
         getLatestIdentifications()
         updatePlantNameType()
+        createButtonListeners()
 
+
+
+    }
+
+    private fun createButtonListeners(){ //Creates listeners for identfied buttons
         MapsActivity_PrevID0_Btn.setOnClickListener{
             Log.d("MapsActivity","BUTTON PRESSED ${keys[0]}")
             mMap.clear()//Clear the markers from the map
@@ -77,8 +90,71 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.clear()
             findSpecificIdentified(keys[3])
         }
-
+        MapsActivity_UserSearch_Btn.setOnClickListener{
+            processUserSearch()
+        }
     }
+
+    private fun processUserSearch(){
+        Log.d("SuperTest","Got to processUserSearch")
+    var baseIds = CloudVisionData().getBaseIdentLibrary()
+        var path = ""
+        var userText = ActivityMaps_UserSearch.text.toString()
+        if (checkUserSearchInput(userText)) {
+            Log.d("SuperTest","Got to processUserSearch DISPLAYING")
+                var allFoundBranches = UserSearch().searchAndCheckAllBranchNames(
+                    userText.toLowerCase(),
+                    allBranches
+                )    //CHECK BRANCHES FIRST
+                if (allFoundBranches.size > 0) {
+                    displaySearchMarkersUsingBranchObjects(allFoundBranches)
+                } else {
+                    path = UserSearch().checkAllUserIdents(userText.toLowerCase(), allUserIdentifications, baseIds)
+                    if (path != "") {
+                        displaySearchMarkersUsingPath(path)
+                    } else {
+                        path = UserSearch().checkAllBranchBaseIDs(userText.toLowerCase(), baseIds)
+                        if (path != "") {
+                            displaySearchMarkersUsingPath(path)
+                        } else {
+                            Toast.makeText(this, "Search complete, nothing found", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
+
+    private fun checkUserSearchInput(userText: String): Boolean {
+        Log.d("SuperTest","Got to checkUserSearchInput")
+        if (userText != "" && userText.length >= 2){
+            return true
+        }
+        else if (userText == ""){
+            Toast.makeText(this, "Search field is empty!", Toast.LENGTH_SHORT).show()
+        }
+        else if (userText.length <= 1){
+            Toast.makeText(this, "Search text is too short!", Toast.LENGTH_SHORT).show()
+        }
+        return false
+    }
+
+    private fun displaySearchMarkersUsingBranchObjects(allFoundBranches: MutableList<Branch>){
+        Log.d("SuperTest","Got to display Branches")
+        //display those branches
+        for (branch in allFoundBranches){ //Display all branch markers
+            mMap.clear()
+            populateSingleBranchMarker(branch)
+            Log.d("SuperTest","Displayed branch  ${branch.name}")
+        }
+        Log.d("SuperTest","Finished Displaying branches")
+    }
+
+    private fun displaySearchMarkersUsingPath(path: String){
+        Log.d("SuperTest","Got to line 116 = $path")
+        mMap.clear()
+        getSpecBranchIDs(path) //Display all branches under returned path
+    }
+
 
     private fun updatePlantNameType(){//Used for normal acceess to page
         var plantName = getPlantName()
@@ -131,14 +207,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         MapsActivity_CurrentType_TextViewStatic.visibility = View.INVISIBLE
     }
 
-    /** Calls displayIdentifications(identifications) passing MutableList of identification objects
+    /** Calls displayIdentifications() and Populatesd allUserIdentifications global variable
      *  Creates a MutableList called identifications, containing all of the identifications by the user,
      *  populated via Firebase.
      *
      *  */
     private fun getLatestIdentifications() { //Unable to put into other class, due to the override functions, and delay on waiting for download
         val currentIdUUID = getIdentifiedPlantUUID()
-        var identifications: MutableList<Identified> = mutableListOf<Identified>()
         val uid = FirebaseAuth.getInstance().uid
         val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uid}")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -147,11 +222,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (it.key.toString() != currentIdUUID) { //Checking that the current identified plant is not saved to the array
                         val userIdentified = (it.getValue(Identified::class.java))
                         Log.d("MapsActivity", "User ${userIdentified!!.identifiedImage}")
-                        identifications.add(userIdentified)//Adds the identifications to the Identifications array
+                        allUserIdentifications.add(userIdentified)//Adds the identifications to the Identifications array
                         keys.add(it.key.toString())
                     }
                 }
-                displayIdentifications(identifications)
+                displayIdentifications()
             }
 
             override fun onCancelled(p0: DatabaseError) {
@@ -163,29 +238,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /**Populates and Hides previous identifications depending if the data exists
      * Calls displayIDX to populate the previous identifications and
      * hides the identifications which are not to be populated
-     * @param identifications is the populated MutableList containing Identified objects
+     *
      */
-    private fun displayIdentifications(identifications: MutableList<Identified>) {//used to populate the previously identified details
+    private fun displayIdentifications() {//used to populate the previously identified details
         Log.d("MapsActivity"," displayIdentifications"
         )
-        var size = identifications.size
+        var size = allUserIdentifications.size
         if (size - 1 >= 3) {
-            displayId0(identifications[0])//Display relevant fields
-            displayId1(identifications[1])
-            displayId2(identifications[2])
-            displayId3(identifications[3])
+            displayId0(allUserIdentifications[0])//Display relevant fields
+            displayId1(allUserIdentifications[1])
+            displayId2(allUserIdentifications[2])
+            displayId3(allUserIdentifications[3])
         } else if (size - 1 >= 2) {
-            displayId0(identifications[0])
-            displayId1(identifications[1])
-            displayId2(identifications[2])
+            displayId0(allUserIdentifications[0])
+            displayId1(allUserIdentifications[1])
+            displayId2(allUserIdentifications[2])
             hideDisplayID3()
         } else if (size - 1 >= 1) {
-            displayId0(identifications[0])
-            displayId1(identifications[1])
+            displayId0(allUserIdentifications[0])
+            displayId1(allUserIdentifications[1])
             hideDisplayID2()
             hideDisplayID3()
         } else if (size > 0) {
-            displayId0(identifications[0])
+            displayId0(allUserIdentifications[0])
             hideDisplayID1()
             hideDisplayID2()
             hideDisplayID3()
@@ -381,19 +456,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gps, 8.0f)) //Moves camera to this point
     }
 
-    /**Compares the parameters to see if they contain one or another
-     * @param lowerCaseKey Plant Names from Firebase
-     * @param lowerCasePlantName latest identified plant name
-     * @return Boolean
-     */
-    private fun processMatchData(lowerCaseKey: String, lowerCasePlantName: String): Boolean {
-        if (lowerCaseKey.contains(lowerCasePlantName) || lowerCasePlantName.contains(lowerCaseKey)) {
-            Log.d("MapsActivity", "processMatchData CORRECT MATCH KEY CONFIRM ")
-            return true
-        }
-       return false
-    }
-
     /**Searches Firebase specPlants/baseIdent for a specific plantName match
      * If the specific plantName is matched, getSpecBranchIDs() is then called with the correct path to the match
      * else, all markers are displayed via displayAllMarkers() as the baseID does not exist
@@ -412,7 +474,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onDataChange(p0: DataSnapshot){
                 p0.children.forEach{
                     val key = it.key.toString() //Get current key
-                    if (processMatchData(key.toLowerCase(), lowerCasePlantName)){
+                    if (DataSort().findIfDataContains(key.toLowerCase(), lowerCasePlantName)){
                         matchKey = key//Get the PlantName from the database (Gets formatting)
                         path = "/" + specPlants + "/" + baseIdent + "/" + matchKey
                         getSpecBranchIDs(path)//Calls displaySpecBranchMarkers to display the markers on the map
@@ -587,6 +649,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap = googleMap
         populateGPS()
+    }
+
+    /**Populates global var allBranches with every Branch from Firebase
+     * Used for user searches
+     */
+    private fun loadAndStoreAllBranches(){ //Loads all branches into global vairable allBranches
+        Log.d("MapsActivity","loadAndStoreAllBranches")
+        val ref = FirebaseDatabase.getInstance().getReference(basePath)
+        ref.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot) {
+                p0.children.forEach{
+                    allBranches.add(it.getValue(Branch::class.java)!!) //Add this branch object to the global variable
+                }
+            }
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d("MapsActivity","loadAndStoreAllBranches Error = ${p0.message}")
+            }
+        })
     }
 
     /**Displays every branch on the map
