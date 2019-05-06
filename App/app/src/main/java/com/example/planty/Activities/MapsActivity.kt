@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.example.planty.Classes.CloudVisionData
 import com.example.planty.Classes.DataSort
@@ -45,7 +46,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var basePath = "/branches/"
     private var attemptCounter = 0
-    var keys: MutableList<String> = mutableListOf<String>()//Used to store the keys for previouslyIdentified plants
+    var identifiedPlantsKey: MutableList<String> = mutableListOf<String>()//Used to store the identifiedPlantsKey for previouslyIdentified plants
 
 
 
@@ -66,32 +67,52 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         getLatestIdentifications()
         updatePlantNameType()
         createButtonListeners()
-
+        hideSearchDisplayDetails()
+        updateMainDescriptionTxt()
 
 
     }
 
+    private fun updateMainDescriptionTxt(){
+        val plant = getPlantName()
+        if (plant == "") {
+          //  MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
+            MapsActivity_TextView_ViewingBranchesText.text = "Displaying all branches"
+        }
+    }
+
+    private fun hideSearchDisplayDetails(){
+        MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
+        MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
+        MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
+
+    }
+
+
+
     private fun createButtonListeners(){ //Creates listeners for identfied buttons
         MapsActivity_PrevID0_Btn.setOnClickListener{
-            Log.d("MapsActivity","BUTTON PRESSED ${keys[0]}")
+            Log.d("MapsActivity","BUTTON PRESSED ${identifiedPlantsKey[0]}")
             mMap.clear()//Clear the markers from the map
-            findSpecificIdentified(keys[0])//Find and display the markers for this specific plant
+            findSpecificIdentified(identifiedPlantsKey[0])//Find and display the markers for this specific plant
         }
         MapsActivity_PrevID1_Btn.setOnClickListener{
-            Log.d("MapsActivity","BUTTON PRESSED ${keys[1]}")
+            Log.d("MapsActivity","BUTTON PRESSED ${identifiedPlantsKey[1]}")
             mMap.clear()
-            findSpecificIdentified(keys[1])
+            findSpecificIdentified(identifiedPlantsKey[1])
         }
         MapsActivity_PrevID2_Btn.setOnClickListener{
             mMap.clear()
-            findSpecificIdentified(keys[2])
+            findSpecificIdentified(identifiedPlantsKey[2])
         }
         MapsActivity_PrevID3_Btn.setOnClickListener{
             mMap.clear()
-            findSpecificIdentified(keys[3])
+            findSpecificIdentified(identifiedPlantsKey[3])
         }
         MapsActivity_UserSearch_Btn.setOnClickListener{
             processUserSearch()
+
+            hideKeyboard()
         }
     }
 
@@ -101,6 +122,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         var path = ""
         var userText = ActivityMaps_UserSearch.text.toString()
         if (checkUserSearchInput(userText)) {
+
             Log.d("SuperTest","Got to processUserSearch DISPLAYING")
                 var allFoundBranches = UserSearch().searchAndCheckAllBranchNames(
                     userText.toLowerCase(),
@@ -108,14 +130,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 )    //CHECK BRANCHES FIRST
                 if (allFoundBranches.size > 0) {
                     displaySearchMarkersUsingBranchObjects(allFoundBranches)
+                    populateSearchTextView(userText)
                 } else {
                     path = UserSearch().checkAllUserIdents(userText.toLowerCase(), allUserIdentifications, baseIds)
                     if (path != "") {
                         displaySearchMarkersUsingPath(path)
+                        populateSearchTextView(userText)
                     } else {
                         path = UserSearch().checkAllBranchBaseIDs(userText.toLowerCase(), baseIds)
                         if (path != "") {
                             displaySearchMarkersUsingPath(path)
+                            populateSearchTextView(userText)
                         } else {
                             Toast.makeText(this, "Search complete, nothing found", Toast.LENGTH_SHORT).show()
                         }
@@ -123,6 +148,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
+
+    private fun populateSearchTextView(usersSearch: String){
+        MapsActivity_TextView_SearchResult1.text = usersSearch
+        MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
+    }
+
+    private fun hideKeyboard(){
+        try {
+            val inputManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, InputMethodManager.SHOW_FORCED)
+        }
+        catch(e: Exception){
+            Log.d("MapsActivity","Error closing keyboard = ${e.message}")
+        }
+    }
 
     private fun checkUserSearchInput(userText: String): Boolean {
         Log.d("SuperTest","Got to checkUserSearchInput")
@@ -145,6 +185,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.clear()
             populateSingleBranchMarker(branch)
             Log.d("SuperTest","Displayed branch  ${branch.name}")
+            hideSearchDisplayDetails()
+            MapsActivity_TextView_BranchesMatch.visibility = View.VISIBLE
+            MapsActivity_TextView_SearchResult1.visibility = View.VISIBLE
         }
         Log.d("SuperTest","Finished Displaying branches")
     }
@@ -153,6 +196,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Log.d("SuperTest","Got to line 116 = $path")
         mMap.clear()
         getSpecBranchIDs(path) //Display all branches under returned path
+        hideSearchDisplayDetails()
+        MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+        MapsActivity_TextView_SearchResult1.visibility = View.VISIBLE
     }
 
 
@@ -223,9 +269,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val userIdentified = (it.getValue(Identified::class.java))
                         Log.d("MapsActivity", "User ${userIdentified!!.identifiedImage}")
                         allUserIdentifications.add(userIdentified)//Adds the identifications to the Identifications array
-                        keys.add(it.key.toString())
+                        identifiedPlantsKey.add(it.key.toString())
                     }
                 }
+                dateSortIdentifications()
                 displayIdentifications()
             }
 
@@ -233,6 +280,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.d("MapsActivity", "getLatestIdentifications Error = ${p0.message}")
             }
         })
+    }
+
+    /**Sorts allUserIdentifications and identifiedPlantsKey into DateOrder
+     *
+     */
+    private fun dateSortIdentifications(){
+        for(indent in allUserIdentifications){
+            Log.d("SuperTest1", "before Sort = ${indent.dateTime}")
+        }
+        var swap = true
+        while(swap){
+            swap = false
+            for(i in 0 until allUserIdentifications.indices.last){
+                if(allUserIdentifications[i].dateTime > allUserIdentifications[i+1].dateTime){
+                    val temp = allUserIdentifications[i]
+                    val tempKey = identifiedPlantsKey[i]
+                    allUserIdentifications[i] = allUserIdentifications[i+1]
+                    identifiedPlantsKey[i] = identifiedPlantsKey[i+1]
+                    allUserIdentifications[i+1] = temp
+                    identifiedPlantsKey[i+1] = tempKey
+                    swap = true
+                }
+            }
+        }
+        for(indent in allUserIdentifications){
+            Log.d("SuperTest1", "After Sort = ${indent.dateTime}")
+        }
     }
 
     /**Populates and Hides previous identifications depending if the data exists
