@@ -9,63 +9,67 @@
         android:layout_width="match_parent">
 
     <TextView
-            android:text="TextView"
+            android:text="Loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/MapsActivity_TextView_SearchResult1"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" android:layout_marginRight="8dp" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/ActivityMaps_UserSearch"/>
+            android:layout_marginEnd="44dp" android:layout_marginRight="44dp"
+            android:textStyle="normal"
+            app:layout_constraintStart_toEndOf="@+id/MapsActivity_TextView_BranchesMatch"
+            android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
+            app:layout_constraintTop_toTopOf="@+id/MapsActivity_TextView_BranchesMatch"
+            app:layout_constraintHorizontal_bias="0.01"/>
     <TextView
-            android:text="Showing search results for branches which match:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/MapsActivity_TextView_BranchesMatch"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="28dp"
-            android:layout_marginStart="28dp"
+            android:text="Filtering by:"
+            android:layout_width="86dp"
+            android:layout_height="19dp" android:id="@+id/MapsActivity_TextView_BranchesMatch"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/ActivityMaps_UserSearch"/>
     <TextView
-            android:text="Showing search results, branches which sell:"
+            android:text="Where to buy:"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/MapsActivity_TextView_branchesSellTest"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginLeft="48dp" android:layout_marginStart="48dp" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/ActivityMaps_UserSearch"/>
+            android:layout_marginLeft="16dp" android:layout_marginStart="16dp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/MapsActivity_TextView_ViewingBranchesText"
+            android:textSize="18sp" android:layout_marginTop="12dp"/>
     <TextView
             android:text="TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/MapsActivity_TypePlant_TextView"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/MapsActivity_CurrentType_TextViewStatic"
+            android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
             app:layout_constraintTop_toTopOf="@+id/MapsActivity_CurrentType_TextViewStatic"/>
     <TextView
             android:text="Current Plant"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/MapsActivity_CurrentPlant_TextView" app:layout_constraintStart_toEndOf="@+id/MapsActivity_CurrentPlant_StaticTextView"
-            android:layout_marginLeft="12dp" android:layout_marginStart="12dp"
-            app:layout_constraintTop_toTopOf="@+id/MapsActivity_CurrentPlant_StaticTextView"/>
+            android:id="@+id/MapsActivity_CurrentPlant_TextView"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/MapsActivity_TextView_branchesSellTest"
+            android:layout_marginLeft="8dp" android:layout_marginStart="8dp" android:textSize="18sp"
+            app:layout_constraintTop_toTopOf="@+id/MapsActivity_TextView_branchesSellTest"/>
     <TextView
-            android:text="Type of Plant:"
+            android:text="Type:"
             android:layout_width="wrap_content"
-            android:layout_height="22dp"
-            android:id="@+id/MapsActivity_CurrentType_TextViewStatic" app:layout_constraintEnd_toStartOf="@+id/MapsActivity_TypePlant_TextView"
-            android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
-            app:layout_constraintTop_toTopOf="@+id/MapsActivity_CurrentPlant_TextView"/>
+            android:layout_height="wrap_content"
+            android:id="@+id/MapsActivity_CurrentType_TextViewStatic"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/MapsActivity_TextView_branchesSellTest"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/MapsActivity_TextView_branchesSellTest"/>
     <TextView
-            android:text="Current Plant:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/MapsActivity_CurrentPlant_StaticTextView"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/MapsActivity_TextView_branchesSellTest"
-            android:layout_marginTop="12dp"/>
-    <TextView
-            android:text="Viewing branches which sell your identified plant"
+            android:text="All Branches"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/MapsActivity_TextView_ViewingBranchesText"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            app:layout_constraintHorizontal_bias="0.232" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/ActivityMaps_UserSearch"/>
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="8dp"
+            android:textStyle="bold" android:textSize="24sp"/>
     <Button
             android:text="Show"
             android:layout_width="85dp"
@@ -173,16 +177,16 @@
     <EditText
             android:layout_width="291dp"
             android:layout_height="40dp" android:id="@+id/ActivityMaps_UserSearch"
-            android:layout_marginTop="16dp"
             android:inputType="text"
             android:ems="10"
             android:textColor="#000000"
             android:focusable="true"
-            app:layout_constraintTop_toTopOf="parent"
-            android:hint="@android:string/search_go" app:layout_constraintStart_toStartOf="parent"
+            android:hint="Filter by Branch or Type" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
-            android:clickable="true" android:editable="true" app:layout_constraintHorizontal_bias="0.137"/>
+            android:clickable="true" android:editable="true" app:layout_constraintHorizontal_bias="0.057"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/MapsActivity_CurrentType_TextViewStatic"/>
     <Button
             android:text="Show"
             android:layout_width="85dp"
@@ -190,12 +194,12 @@
             app:layout_constraintTop_toTopOf="@+id/MapsActivity_PrevID1_Desc" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" android:layout_marginRight="8dp"/>
     <Button
-            android:text="Search"
+            android:text="Filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/MapsActivity_UserSearch_Btn"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp" app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="16dp" app:layout_constraintStart_toEndOf="@+id/ActivityMaps_UserSearch"
+            android:layout_marginRight="8dp" app:layout_constraintTop_toTopOf="@+id/ActivityMaps_UserSearch"
+            app:layout_constraintStart_toEndOf="@+id/ActivityMaps_UserSearch"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp"
             app:layout_constraintHorizontal_bias="1.0"/>
     <TextView
@@ -203,26 +207,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/MapsActivity_TextView1"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout"/>
-    <TextView
-            android:text="Show branches"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/MapsActivity_TextView2" app:layout_constraintStart_toEndOf="@+id/MapsActivity_TextView1"
-            android:layout_marginLeft="8dp" android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
-            app:layout_constraintTop_toTopOf="@+id/MapsActivity_TextView1" app:layout_constraintHorizontal_bias="0.487"/>
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" android:textStyle="bold"/>
     <LinearLayout
             android:layout_height="291dp"
             android:layout_width="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintVertical_bias="0.13999999"
             app:layout_constraintEnd_toEndOf="parent" android:id="@+id/linearLayout"
             android:layout_marginBottom="216dp"
-            app:layout_constraintTop_toBottomOf="@+id/MapsActivity_CurrentType_TextViewStatic">
+            app:layout_constraintTop_toBottomOf="@+id/ActivityMaps_UserSearch" android:layout_marginTop="8dp">
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:tools="http://schemas.android.com/tools"

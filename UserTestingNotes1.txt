@@ -1,0 +1,46 @@
+Logging in:
+Encountered password, saying it should be 5 long er and trhensaying it should be 6 longer.
+
+Logging in, not sure if it's crashed or if it's working.
+
+Identify screen, Working not correct (Select or choose)
+
+--Confused by homepage, Where is the homepage? When creating account, want to get back to that page?
+
+--Defaulkt text, Textview on profile? (Maybe shouold be blank oir loading)
+
+On identified, Word identfied is in caps? Also, the star dissapeared and the image hasnt loaded.
+-Image has not loaded, show the percentage rather than 0.73
+----
+MapsActivity, user is not sure what he's looking at.
+MapsActivity, user presses Done on keyboard, would then like it to search.
+MapsActivity, user is not sure what the seach can look for.
+
+MapsActivity, The search textview is all smooshed up.
+MapsActivity, text is all all smooshes up for previous identifications.
+MapsActivity, when user presses SHOW on previuouis identicication, not aware that the textfields have been updated.
+(Displaying all brtanches text should be dissapeared)
+Have a ttitle at the top, big text which updates. Bold, larger font 
+Mapsacvityi, what's being displayed (Text) shoiuld be above the search bar, in larger bold text.
+
+
+MapsActivity, change prompt to filter Branches & plant types.
+
+
+Profiler Activity, would liukle the ability to delete account, amend details and remove previous identificaitons. Priovacy Policy.
+
+
+Contactus Activity, user is trying to click the text and nothing is happening
+
+Menu, The names are too generic. Star new, Home?
+Identify activity, the icons don't look like buttons. Text, click here! Or border
+
+IdenfitcyActivty, The option to self-identify does not load when a photo is taken.
+Identified activity, text is running off the sidee under the buttons. 
+Moves onto MapsActivity from self-Identify, No details showing what's being displayed on the map
+MapsActivity, type of plant is displying the descipriton?
+
+
+
+
+-The applicaiton name is map?

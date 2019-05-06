@@ -5,12 +5,15 @@ import java.util.*
 
 class DateTime {
 
-    /**Returns DateTime
-     * @return String
-     */
-    fun getDateTime(): String{ //Returns DateTime
-        val dateFormat = SimpleDateFormat("dd/M/yyy hh:mm:ss")
-        val dateTime = dateFormat.format(Date())
-        return dateTime
+
+    companion object {//self contained object, does not need an instance of the class to run
+        /**Returns DateTime
+         * @return String
+         */
+        fun getDateTime(): String { //Returns DateTime
+            val dateFormat = SimpleDateFormat("dd/M/yyy hh:mm:ss")
+            val dateTime = dateFormat.format(Date())
+            return dateTime
+        }
     }
 }

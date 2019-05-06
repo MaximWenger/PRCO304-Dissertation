@@ -13,14 +13,11 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import com.example.planty.Classes.CloudVisionData
-import com.example.planty.Classes.DataSort
-import com.example.planty.Classes.GPSLocation
-import com.example.planty.Classes.UserSearch
+import com.example.planty.Classes.*
 import com.example.planty.R
-import com.example.planty.Objects.Branch
-import com.example.planty.Objects.Identified
-import com.example.planty.Objects.UserImage
+import com.example.planty.Entities.Branch
+import com.example.planty.Entities.Identified
+import com.example.planty.Entities.UserImage
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -36,7 +33,6 @@ import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_maps.*
 import java.lang.Exception
-
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
@@ -59,10 +55,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         supportActionBar?.title = "Planty  |  Find Plants"
-        verifyLoggedIn()//check the User is logged in
+        ActivityNavigation.verifyLoggedIn(this)//check the User is logged in
 
         loadAndStoreAllBranches()
-
+        hidePlantDescTextViews()
         populateSpecificMarkers()
         getLatestIdentifications()
         updatePlantNameType()
@@ -77,15 +73,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val plant = getPlantName()
         if (plant == "") {
           //  MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
-            MapsActivity_TextView_ViewingBranchesText.text = "Displaying all branches"
+            //MapsActivity_TextView_ViewingBranchesText.text = "Displaying all branches"
         }
     }
 
     private fun hideSearchDisplayDetails(){
         MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
-        MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
+       //MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
         MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
-
     }
 
 
@@ -93,27 +88,65 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun createButtonListeners(){ //Creates listeners for identfied buttons
         MapsActivity_PrevID0_Btn.setOnClickListener{
             Log.d("MapsActivity","BUTTON PRESSED ${identifiedPlantsKey[0]}")
+            enableAllShowButtons(it)
+            clearSearchText()
+            hideSearchDisplayDetails()
+            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
             mMap.clear()//Clear the markers from the map
             findSpecificIdentified(identifiedPlantsKey[0])//Find and display the markers for this specific plant
         }
         MapsActivity_PrevID1_Btn.setOnClickListener{
             Log.d("MapsActivity","BUTTON PRESSED ${identifiedPlantsKey[1]}")
+          //  MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            enableAllShowButtons(it)
+            clearSearchText()
+            hideSearchDisplayDetails()
+            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
             mMap.clear()
             findSpecificIdentified(identifiedPlantsKey[1])
         }
         MapsActivity_PrevID2_Btn.setOnClickListener{
+           // MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            enableAllShowButtons(it)
+            clearSearchText()
+            hideSearchDisplayDetails()
+            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
             mMap.clear()
             findSpecificIdentified(identifiedPlantsKey[2])
         }
         MapsActivity_PrevID3_Btn.setOnClickListener{
+           // MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            enableAllShowButtons(it)
+            clearSearchText()
+            hideSearchDisplayDetails()
+            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
             mMap.clear()
             findSpecificIdentified(identifiedPlantsKey[3])
         }
         MapsActivity_UserSearch_Btn.setOnClickListener{
+            hidePlantDescTextViews()
             processUserSearch()
-
+            enableAllShowButtons()
+            MapsActivity_TextView_BranchesMatch.visibility = View.VISIBLE
+            MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
             hideKeyboard()
         }
+    }
+
+    private fun enableAllShowButtons(selectedBtn: View? = null){
+        MapsActivity_PrevID0_Btn.isEnabled = true
+        MapsActivity_PrevID1_Btn.isEnabled = true
+        MapsActivity_PrevID2_Btn.isEnabled = true
+        MapsActivity_PrevID3_Btn.isEnabled = true
+        selectedBtn?.isEnabled = false
+    }
+
+    private fun clearSearchText(){
+        ActivityMaps_UserSearch.text.clear()
     }
 
     private fun processUserSearch(){
@@ -131,16 +164,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (allFoundBranches.size > 0) {
                     displaySearchMarkersUsingBranchObjects(allFoundBranches)
                     populateSearchTextView(userText)
+                    MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
                 } else {
                     path = UserSearch().checkAllUserIdents(userText.toLowerCase(), allUserIdentifications, baseIds)
                     if (path != "") {
                         displaySearchMarkersUsingPath(path)
                         populateSearchTextView(userText)
+                        MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
                     } else {
                         path = UserSearch().checkAllBranchBaseIDs(userText.toLowerCase(), baseIds)
                         if (path != "") {
                             displaySearchMarkersUsingPath(path)
                             populateSearchTextView(userText)
+                            MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
                         } else {
                             Toast.makeText(this, "Search complete, nothing found", Toast.LENGTH_SHORT).show()
                         }
@@ -151,7 +187,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun populateSearchTextView(usersSearch: String){
         MapsActivity_TextView_SearchResult1.text = usersSearch
-        MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
+        //MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
     }
 
     private fun hideKeyboard(){
@@ -193,11 +229,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun displaySearchMarkersUsingPath(path: String){
-        Log.d("SuperTest","Got to line 116 = $path")
+       // Log.d("SuperTest","Got to line 116 = $path")
         mMap.clear()
         getSpecBranchIDs(path) //Display all branches under returned path
         hideSearchDisplayDetails()
-        MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+      //  MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
         MapsActivity_TextView_SearchResult1.visibility = View.VISIBLE
     }
 
@@ -209,6 +245,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.d("MapsActivity","updatePlantNameType!!!!!!!!!!!!!!!!!!, PlantName = $plantName")
             var baseId = getBaseIdent()
             changePlantDesc(plantName, baseId)
+            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
         }
         else{
             hidePlantDescTextViews()
@@ -239,8 +276,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun showPlantDescTextViews(){
         MapsActivity_CurrentPlant_TextView.visibility = View.VISIBLE
         MapsActivity_TypePlant_TextView.visibility = View.VISIBLE
-        MapsActivity_CurrentPlant_StaticTextView.visibility = View.VISIBLE
+        MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
         MapsActivity_CurrentType_TextViewStatic.visibility = View.VISIBLE
+        MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
     }
 
     /**Turns Plant Desc texviews to invisible
@@ -249,7 +287,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun hidePlantDescTextViews(){
         MapsActivity_CurrentPlant_TextView.visibility = View.INVISIBLE
         MapsActivity_TypePlant_TextView.visibility = View.INVISIBLE
-        MapsActivity_CurrentPlant_StaticTextView.visibility = View.INVISIBLE
+        MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
         MapsActivity_CurrentType_TextViewStatic.visibility = View.INVISIBLE
     }
 
@@ -315,8 +353,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      *
      */
     private fun displayIdentifications() {//used to populate the previously identified details
-        Log.d("MapsActivity"," displayIdentifications"
-        )
+        Log.d("MapsActivity"," displayIdentifications")
+       // MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
+       // MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
+
         var size = allUserIdentifications.size
         if (size - 1 >= 3) {
             displayId0(allUserIdentifications[0])//Display relevant fields
@@ -340,7 +380,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             hideDisplayID3()
         } else {
             MapsActivity_TextView1.visibility = View.INVISIBLE
-            MapsActivity_TextView2.visibility = View.INVISIBLE
+          //  MapsActivity_TextView2.visibility = View.INVISIBLE
             hideDisplayID0()//Hide all fields
             hideDisplayID1()
             hideDisplayID2()
@@ -782,68 +822,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean { //When an option from the menu is clicked
         when (item?.itemId) { //Switch statement
             R.id.nav_Profile -> {
-                navToProfileActivity() //Go to ProfileActivity
+                ActivityNavigation.navToProfileActivity(this) //Go to ProfileActivity
             }
             R.id.nav_Identify -> {
-                navToIdentifyActivity() //Go to IdentifyActivity
+                ActivityNavigation.navToIdentifyActivity(this) //Go to IdentifyActivity
             }
             R.id.nav_Find -> {
                 return super.onOptionsItemSelected(item)  //Return as already within MapsActivity
             }
             R.id.nav_Sign_Out -> {
-                signOut() //Signs the User out and returns to RegisterActivity
+                ActivityNavigation.signOut(this) //Signs the User out and returns to RegisterActivity
             }
             R.id.nav_Contact -> { //DOES NOTHING RIGHT NOW
-                navToContactUsActivity()
+                ActivityNavigation.navToContactUsActivity(this)
             }
             else -> return super.onOptionsItemSelected(item)
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun navToContactUsActivity(){
-        val intent = Intent(this, ContactUsActivity::class.java) //Populate intent with new activity class
-        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
-        startActivity(intent) //Change to new class
-    }
-
-    /**Sings the user out and returns to the login screen
-     *
-     */
-    private fun signOut() {
-        FirebaseAuth.getInstance().signOut()
-        val intent = Intent(this, RegisterActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-    }
-
-    /**Changes activity to IdentifyActivity
-     *
-     */
-    private fun navToIdentifyActivity() {
-        val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
-        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
-        startActivity(intent) //Change to new class
-    }
-
-    /**Checks the user is logged in, returns to Login if not logged in
-     *
-     */
-    private fun verifyLoggedIn() { //Check if the User is already logged in, if not, return User to registerActivity
-        val uid = FirebaseAuth.getInstance().uid
-        if (uid == null) {
-            val intent = Intent(this, RegisterActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
-            startActivity(intent)
+/*    companion object {
+        fun genericSignOut(c: Context) {
+            Intent(c, ContactUsActivity::class.java) //Populate intent with new activity class
         }
-    }
+    }*/
+
+
 
     /**Changes activity to ProfileActivity
      *
      */
-    private fun navToProfileActivity() {
+/*    private fun navToProfileActivity() {
         val intent = Intent(this, ProfileActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
-    }
+    }*/
 }
+

@@ -16,8 +16,8 @@ import com.google.android.gms.maps.model.LatLng
 class GPSLocation {
     private var hasGps = false
     private var hasNetwork = false
-    private var locationGps : Location? = null
-    private var locationNetwork : Location? = null
+    private var locationGps: Location? = null
+    private var locationNetwork: Location? = null
     private lateinit var locationManager: LocationManager
     private lateinit var currentLatLng: LatLng
 
@@ -30,50 +30,56 @@ class GPSLocation {
         locationManager = locManager
         hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        if (hasGps || hasNetwork){
+        if (hasGps || hasNetwork) {
             if (hasGps) {
                 Log.d("MapsActivity", "HasGPS")
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,5000,0F, object : LocationListener {
-                    override fun onLocationChanged(location: Location?) {
-                        if (location != null){
-                            locationGps = location
+                locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    5000,
+                    0F,
+                    object : LocationListener {
+                        override fun onLocationChanged(location: Location?) {
+                            if (location != null) {
+                                locationGps = location
 
+                            }
                         }
-                    }
-                    override fun onProviderDisabled(provider: String?) {}
-                    override fun onProviderEnabled(provider: String?) {}
-                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                })
+
+                        override fun onProviderDisabled(provider: String?) {}
+                        override fun onProviderEnabled(provider: String?) {}
+                        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                    })
                 val localGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                if (localGpsLocation != null){
+                if (localGpsLocation != null) {
                     locationGps = localGpsLocation
                 }
             }
             if (hasNetwork) {
                 Log.d("MapsActivity", "HasNetwork")
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,5000,0F, object :
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 0F, object :
                     LocationListener {
                     override fun onLocationChanged(location: Location?) {
-                        if (location != null){
+                        if (location != null) {
                             locationNetwork = location
 
                         }
                     }
+
                     override fun onProviderDisabled(provider: String?) {}
                     override fun onProviderEnabled(provider: String?) {}
                     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
                 })
                 val localNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-                if (localNetworkLocation != null){
+                if (localNetworkLocation != null) {
                     locationNetwork = localNetworkLocation
                 }
             }
-            if (locationNetwork != null){
+            if (locationNetwork != null) {
                 currentLatLng = LatLng(locationNetwork!!.latitude, locationNetwork!!.longitude)
                 Log.d("MapsActivity", "Network populated ${currentLatLng}")
                 return currentLatLng
             }
-            if (locationGps != null){
+            if (locationGps != null) {
                 currentLatLng = LatLng(locationGps!!.latitude, locationGps!!.longitude)
                 Log.d("MapsActivity", "GPS populated ${currentLatLng}")
                 return currentLatLng

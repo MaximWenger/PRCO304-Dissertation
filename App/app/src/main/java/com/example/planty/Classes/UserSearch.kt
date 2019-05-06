@@ -1,8 +1,8 @@
 package com.example.planty.Classes
 
 import android.util.Log
-import com.example.planty.Objects.Branch
-import com.example.planty.Objects.Identified
+import com.example.planty.Entities.Branch
+import com.example.planty.Entities.Identified
 
 class UserSearch {
 
