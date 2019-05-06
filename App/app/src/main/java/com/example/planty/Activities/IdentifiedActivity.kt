@@ -10,6 +10,7 @@ import android.view.View
 import com.example.planty.Classes.DataSort
 import com.example.planty.R
 import com.example.planty.Classes.IdentSaveToDatabase
+import com.example.planty.Objects.Plant
 import com.example.planty.Objects.UserImage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -230,6 +231,25 @@ class IdentifiedActivity : AppCompatActivity() {
             var confidence = DataSort().convertTo2dp(singleIdent.get(0))//Convert string to 2dp
             identified_name_textview0.text = singleIdent.get(2)
             identified_confidence0.text = confidence
+
+            var plantNameLowerCase = singleIdent.get(2).toLowerCase()
+                val ref = FirebaseDatabase.getInstance().getReference("/specPlants/$baseIdent/${plantNameLowerCase.capitalize()}/Details")//Exact, works off of the EXACT plant name
+                ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(p0: DataSnapshot) {
+                        Log.d("IdentifiedActivity", "TESTING populateIdent0, baseIdent = $baseIdent, PlantNameWithCap ${plantNameLowerCase.capitalize()}")
+                        var identifiedPlant = p0.getValue(Plant::class.java)
+                        Log.d("IdentifiedActivity", " Desc: ${identifiedPlant?.Description}")
+                        if (identifiedPlant?.Description != null) {
+                            identified_descriptionTextview0.text = identifiedPlant?.Description
+                            Picasso.get().load(identifiedPlant?.Image).into(identified_image0)
+                        }else{
+                            identified_descriptionTextview0.visibility = View.INVISIBLE
+                        }
+                    }
+                    override fun onCancelled(p0: DatabaseError) {
+                        Log.d("IdentifiedActivity", "Error populateIdent0 = ${p0.message}")
+                    }
+                })
         }
         catch(e: Exception){
             Log.d("IdentifiedActivity", "PopulateIdent0 Error = ${e.message}")
@@ -245,10 +265,56 @@ class IdentifiedActivity : AppCompatActivity() {
             var confidence = DataSort().convertTo2dp(singleIdent.get(0))//Convert string to 2dp
             identified_name_textview1.text = singleIdent.get(2)
             identified_confidence1.text = confidence
+
+            var plantNameLowerCase = singleIdent.get(2).toLowerCase()
+            val ref = FirebaseDatabase.getInstance().getReference("/specPlants/$baseIdent/${plantNameLowerCase.capitalize()}/Details")//Exact, works off of the EXACT plant name
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(p0: DataSnapshot) {
+                    Log.d("IdentifiedActivity", "TESTING populateIdent1, baseIdent = $baseIdent, PlantNameWithCap ${plantNameLowerCase.capitalize()}")
+                    var identifiedPlant = p0.getValue(Plant::class.java)
+                    Log.d("IdentifiedActivity", " populateIdent1 ${identifiedPlant?.Description}")
+                    if (identifiedPlant?.Description != null) {
+                        identified_descriptionTextview1.text = identifiedPlant?.Description
+                        Picasso.get().load(identifiedPlant?.Image).into(identified_image1)
+                    }else{
+                        identified_descriptionTextview1.visibility = View.INVISIBLE
+                    }
+                }
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d("IdentifiedActivity", "Error populateIdent1 = ${p0.message}")
+                }
+            })
+
+
         }catch (e: Exception){
             Log.d("IdentifiedActivity", "PopulateIdent1 Error = ${e.message}")
         }
     }
+
+/*    private fun populateSpecific(foundCorrectID: String){
+        Log.d("IdentifiedActivity", "Passed Correct ID =$foundCorrectID, baseIdent = $baseIdent")
+        Log.d("IdentifiedActivity", "Path is /specPlants/$baseIdent/$foundCorrectID}/Details/")
+        try {
+            val ref = FirebaseDatabase.getInstance().getReference("/specPlants/$baseIdent/$foundCorrectID}/Details")//Exact, works off of the EXACT plant name
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(p0: DataSnapshot) {
+                    //Log.d("IdentifiedActivity", "TESTING P0 = $p0")
+                    var identifiedPlant = p0.getValue(Plant::class.java)
+                    Log.d("IdentifiedActivity", "Key = ${p0.key.toString()}, p0 = $p0")
+                    Log.d("IdentifiedActivity", "KEY KEY KEY KEY KEY KEY Desc: ${identifiedPlant?.Description}")
+                    //identified_descriptionTextview1.text = identifiedPlant?.Description
+                    //Picasso.get().load(identifiedPlant?.Image).into(identified_image1)
+                }
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d("IdentifiedActivity", "Error populateIdent0 = ${p0.message}")
+                }
+            })
+        }
+        catch(e: Exception){
+            Log.d("IdentifiedActivity","populateUserImage Error = ${e.message}")
+        }
+
+    }*/
 
     /**Populates Ident2 with identification data
      * @param identifiedString List containing identification data
@@ -259,19 +325,32 @@ class IdentifiedActivity : AppCompatActivity() {
             var confidence = DataSort().convertTo2dp(singleIdent.get(0))//Convert string to 2dp
             identified_name_textview2.text = singleIdent.get(2)
             identified_confidence2.text = confidence
+
+
+            var plantNameLowerCase = singleIdent.get(2).toLowerCase()
+            val ref = FirebaseDatabase.getInstance().getReference("/specPlants/$baseIdent/${plantNameLowerCase.capitalize()}/Details")//Exact, works off of the EXACT plant name
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(p0: DataSnapshot) {
+                    Log.d("IdentifiedActivity", "TESTING populateIdent2, baseIdent = $baseIdent, PlantNameWithCap ${plantNameLowerCase.capitalize()}")
+                    var identifiedPlant = p0.getValue(Plant::class.java)
+                    Log.d("IdentifiedActivity", "Desc: ${identifiedPlant?.Description}")
+                    if (identifiedPlant?.Description != null) {
+                        identified_descriptionTextview2.text = identifiedPlant?.Description
+                        Picasso.get().load(identifiedPlant?.Image).into(identified_image2)
+                    }else{
+                        identified_descriptionTextview2.visibility = View.INVISIBLE
+                    }
+                }
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d("IdentifiedActivity", "Error populateIdent2 = ${p0.message}")
+                }
+            })
         }
         catch (e: Exception){
             Log.d("IdentifiedActivity", "PopulateIdent2 Error = ${e.message}")
         }
     }
 
-
-
-    //Show top three reccomendations
-    //Populate the static textfields
-    //hide the fields which are not used
-    //have an temp image for each plant
-    //redownload the identified plant
 
     /**Checks the user is logged in, returns to Login if not logged in
      *
@@ -376,12 +455,20 @@ class IdentifiedActivity : AppCompatActivity() {
 
 
 /*
----------
-*/
-/*                val currentImage = p0.getValue(UserImage::class.java)
-            Log.d("IdentifiedActivity", "current Image to String = ${currentImage.toString()}")
-            val imgLoc = currentImage?.imageLoc
-            //val imgLoc = "https://firebasestorage.googleapis.com/v0/b/kotlinplanty.appspot.com/o/images%2F1d9e3e14-f3b6-4c97-8737-9b95eed88ddc?alt=media&token=d67b6883-e41d-4001-a86c-ef1fef77f92f"
-            Log.d("IdentifiedActivity", "Image loc = ${imgLoc.toString()}")
-            Log.d("IdentifiedActivity", "ImageName = ${imageName}")
-            Picasso.get().load(imgLoc).into(identified_userImage)*/
+                val ref = FirebaseDatabase.getInstance().getReference("/specPlants/$baseIdent")
+                ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(p0: DataSnapshot) {
+                        p0.children.forEach{
+                            val plantName = it.key.toString().toLowerCase()
+                            if (DataSort().findIfDataContains(plantNameLowerCase, plantName)) {//Compare every name in database, if there's one which is the same name or contained within it, save it to the database
+                                foundCorrectID = it.key.toString()
+                            }
+                        }
+                        populateSpecific(foundCorrectID)
+                    }
+
+                    override fun onCancelled(p0: DatabaseError) {
+                        Log.d("IdentifiedActivity", "Error populateIdent0 = ${p0.message}")
+                    }
+                })
+ */

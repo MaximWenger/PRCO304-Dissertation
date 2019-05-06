@@ -499,7 +499,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             getSpecPlants(plantName, baseId) //Display the markers for branches which sell the plant
         }
         else if (baseID.isNotEmpty()){//Display all markers for the specific baseID if there is a baseID
-            var path = "/basePlants/" + baseID
+            var path = "/basePlants/" + baseID /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             getSpecBranchIDs(path)
         }
         else {
@@ -550,7 +550,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     val key = it.key.toString() //Get current key
                     if (DataSort().findIfDataContains(key.toLowerCase(), lowerCasePlantName)){
                         matchKey = key//Get the PlantName from the database (Gets formatting)
-                        path = "/" + specPlants + "/" + baseIdent + "/" + matchKey
+                        path = "/" + specPlants + "/" + baseIdent + "/" + matchKey + "/Branches/"
                         getSpecBranchIDs(path)//Calls displaySpecBranchMarkers to display the markers on the map
                     }
                 }

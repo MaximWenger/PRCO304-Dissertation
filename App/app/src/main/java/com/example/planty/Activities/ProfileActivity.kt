@@ -22,6 +22,7 @@ class ProfileActivity : AppCompatActivity() {
 
         verifyLoggedIn()//check the User is logged in
         getUserData()
+        userData()
     }
 
     /**Gets user data
@@ -34,13 +35,33 @@ class ProfileActivity : AppCompatActivity() {
             override fun onDataChange(p0: DataSnapshot) {
                 p0.children.forEach{
                     Log.d("profileActivity",it.toString())
-                    profile_userEmail.text = FirebaseAuth.getInstance().currentUser?.email
+                    ProfileActivity_TextView_UserEmail.text = FirebaseAuth.getInstance().currentUser?.email
                 }
             }
             override fun onCancelled(p0: DatabaseError) {
                 Log.d("profileActivity","Error getting user data")
             }
         })
+    }
+
+    private fun userData(){
+        val user = FirebaseAuth.getInstance().currentUser
+        user?.let {
+            // Name, email address, and profile photo Url
+            val name = user.displayName
+            val email = user.email
+            val photoUrl = user.photoUrl
+
+            // Check if user's email is verified
+            val emailVerified = user.isEmailVerified
+
+            // The user's ID, unique to the Firebase project. Do NOT use this value to
+            // authenticate with your backend server, if you have one. Use
+            // FirebaseUser.getToken() instead.
+            val uid = user.uid
+
+            Log.d("profileActivity","User data = Name = $name, Email = $email, photoURL = $photoUrl, Email verified = $emailVerified, UID = $uid")
+        }
     }
 
     /**Confirms the user is logged in
