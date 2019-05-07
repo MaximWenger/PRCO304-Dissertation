@@ -88,7 +88,7 @@ class ProfileActivity : AppCompatActivity() {
             R.id.nav_Identify -> {
                 ActivityNavigation.navToIdentifyActivity(this)//Go to Identify Activity
             }
-            R.id.nav_Find -> {
+            R.id.nav_Home -> {
                 ActivityNavigation.navToMapsActivity(this) //Go to MapsActivity
             }
             R.id.nav_Sign_Out -> {

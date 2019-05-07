@@ -386,7 +386,7 @@ class IdentifiedActivity : AppCompatActivity() {
             R.id.nav_Identify -> {
                 ActivityNavigation.navToIdentifyActivity(this)
             }
-            R.id.nav_Find -> {
+            R.id.nav_Home -> {
                 ActivityNavigation.navToMapsActivity(this) //Go to MapsActivity
             }
             R.id.nav_Sign_Out -> {

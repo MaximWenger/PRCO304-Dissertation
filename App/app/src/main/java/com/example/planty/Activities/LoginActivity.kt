@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity() { //Combatability Activity
      *
      */
     private fun changeActivityToHome() {
-        val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
+        val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
         intent.flags =
             Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class

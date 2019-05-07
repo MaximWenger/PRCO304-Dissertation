@@ -68,6 +68,7 @@ class IdentifyActivity : AppCompatActivity() {
      *
      */
     private fun showSelfIdentify() {
+        Log.d("SuperTest", "Showing Self Identify")
         IdentifyActivity_Button_SelfIdentify.visibility = View.VISIBLE
         IdentifyActivity_TextView_ActuallyPlant.visibility = View.VISIBLE
     }
@@ -126,6 +127,7 @@ class IdentifyActivity : AppCompatActivity() {
                                 baseIdent
                             )//Pass the data to new activity & change activity
                         } else { //If it is NOT a plant
+                            Log.d("SuperTest", "Got to line 129")
                             showSelfIdentify()
                             Toast.makeText(
                                 this,
@@ -232,7 +234,7 @@ class IdentifyActivity : AppCompatActivity() {
             R.id.nav_Identify -> {
                 return super.onOptionsItemSelected(item)  //Return as already within Identify Activity
             }
-            R.id.nav_Find -> {
+            R.id.nav_Home -> {
                 ActivityNavigation.navToMapsActivity(this) //Go to MapsActivity
             }
             R.id.nav_Sign_Out -> {

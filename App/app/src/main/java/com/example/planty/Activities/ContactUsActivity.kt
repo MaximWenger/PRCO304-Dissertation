@@ -40,7 +40,7 @@ class ContactUsActivity : AppCompatActivity() {
             R.id.nav_Identify -> {
                 return super.onOptionsItemSelected(item)  //Return as already within Identify Activity
             }
-            R.id.nav_Find -> {
+            R.id.nav_Home -> {
                 navToMapsActivity() //Go to MapsActivity
             }
             R.id.nav_Sign_Out -> {

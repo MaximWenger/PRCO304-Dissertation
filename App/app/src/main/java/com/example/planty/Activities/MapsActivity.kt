@@ -54,7 +54,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        supportActionBar?.title = "Planty  |  Find Plants"
+        supportActionBar?.title = "Planty  |  Home"
         ActivityNavigation.verifyLoggedIn(this)//check the User is logged in
 
         loadAndStoreAllBranches()
@@ -72,6 +72,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun updateMainDescriptionTxt(){
         val plant = getPlantName()
         if (plant == "") {
+            //hideAndShowFieldsPrevIdent()
           //  MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
             //MapsActivity_TextView_ViewingBranchesText.text = "Displaying all branches"
         }
@@ -79,7 +80,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun hideSearchDisplayDetails(){
         MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
-       //MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
+
         MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
     }
 
@@ -87,54 +88,69 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun createButtonListeners(){ //Creates listeners for identfied buttons
         MapsActivity_PrevID0_Btn.setOnClickListener{
-            Log.d("MapsActivity","BUTTON PRESSED ${identifiedPlantsKey[0]}")
+            var size = allUserIdentifications.size
             enableAllShowButtons(it)
             clearSearchText()
             hideSearchDisplayDetails()
-            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
-            MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
+
+            hideAndShowFieldsPrevIdent()
             mMap.clear()//Clear the markers from the map
-            findSpecificIdentified(identifiedPlantsKey[0])//Find and display the markers for this specific plant
+            findSpecificIdentified(identifiedPlantsKey[size-1])//Find and display the markers for this specific plant
         }
         MapsActivity_PrevID1_Btn.setOnClickListener{
-            Log.d("MapsActivity","BUTTON PRESSED ${identifiedPlantsKey[1]}")
-          //  MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            var size = allUserIdentifications.size
             enableAllShowButtons(it)
             clearSearchText()
             hideSearchDisplayDetails()
-            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
-            MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
+            hideAndShowFieldsPrevIdent()
             mMap.clear()
-            findSpecificIdentified(identifiedPlantsKey[1])
+            findSpecificIdentified(identifiedPlantsKey[size-2])
         }
         MapsActivity_PrevID2_Btn.setOnClickListener{
-           // MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            var size = allUserIdentifications.size
             enableAllShowButtons(it)
             clearSearchText()
             hideSearchDisplayDetails()
-            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
-            MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
+            hideAndShowFieldsPrevIdent()
             mMap.clear()
-            findSpecificIdentified(identifiedPlantsKey[2])
+            findSpecificIdentified(identifiedPlantsKey[size-3])
         }
         MapsActivity_PrevID3_Btn.setOnClickListener{
-           // MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+            var size = allUserIdentifications.size
             enableAllShowButtons(it)
             clearSearchText()
             hideSearchDisplayDetails()
-            MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
-            MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
+            hideAndShowFieldsPrevIdent()
             mMap.clear()
-            findSpecificIdentified(identifiedPlantsKey[3])
+            findSpecificIdentified(identifiedPlantsKey[size-4])
         }
         MapsActivity_UserSearch_Btn.setOnClickListener{
-            hidePlantDescTextViews()
             processUserSearch()
             enableAllShowButtons()
-            MapsActivity_TextView_BranchesMatch.visibility = View.VISIBLE
-            MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
             hideKeyboard()
         }
+    }
+
+     private fun hideAndShowfieldsUserSearch(){
+         MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
+         MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
+         MapsActivity_CurrentPlant_TextView.visibility = View.INVISIBLE
+         MapsActivity_CurrentType_TextViewStatic.visibility = View.INVISIBLE
+         MapsActivity_TypePlant_TextView.visibility = View.INVISIBLE
+
+         MapsActivity_TextView_BranchesMatch.visibility = View.VISIBLE
+         MapsActivity_TextView_SearchResult1.visibility = View.VISIBLE
+    }
+
+    private fun hideAndShowFieldsPrevIdent(){
+        MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
+        MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
+        MapsActivity_CurrentPlant_TextView.visibility = View.VISIBLE
+        MapsActivity_CurrentType_TextViewStatic.visibility = View.VISIBLE
+        MapsActivity_TypePlant_TextView.visibility = View.VISIBLE
+
+        MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
+        MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
     }
 
     private fun enableAllShowButtons(selectedBtn: View? = null){
@@ -164,20 +180,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (allFoundBranches.size > 0) {
                     displaySearchMarkersUsingBranchObjects(allFoundBranches)
                     populateSearchTextView(userText)
-                    MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
+                    //MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
+                    hideAndShowfieldsUserSearch()
                 } else {
                     path = UserSearch().checkAllUserIdents(userText.toLowerCase(), allUserIdentifications, baseIds)
                     if (path != "") {
                         displaySearchMarkersUsingPath(path)
                         populateSearchTextView(userText)
-                        MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
+                        hideAndShowfieldsUserSearch()
+                       // MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
                     } else {
                         path = UserSearch().checkAllBranchBaseIDs(userText.toLowerCase(), baseIds)
                         if (path != "") {
                             displaySearchMarkersUsingPath(path)
                             populateSearchTextView(userText)
-                            MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
+                            hideAndShowfieldsUserSearch()
+                            //MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
                         } else {
+                           // hidePlantDescTextViews()
+                           // MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
                             Toast.makeText(this, "Search complete, nothing found", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -331,7 +352,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         while(swap){
             swap = false
             for(i in 0 until allUserIdentifications.indices.last){
-                if(allUserIdentifications[i].dateTime > allUserIdentifications[i+1].dateTime){
+                if(allUserIdentifications[i].dateTime > allUserIdentifications[i+1].dateTime){//Cant deal with early mornings
                     val temp = allUserIdentifications[i]
                     val tempKey = identifiedPlantsKey[i]
                     allUserIdentifications[i] = allUserIdentifications[i+1]
@@ -342,6 +363,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
+        allUserIdentifications.reverse() //Must reverse both, to maintain newest ident at start
+        identifiedPlantsKey.reverse()//Must reverse both, to maintain newest ident at start
         for(indent in allUserIdentifications){
             Log.d("SuperTest1", "After Sort = ${indent.dateTime}")
         }
@@ -358,22 +381,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
        // MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
 
         var size = allUserIdentifications.size
+        Log.d("SuperTest"," displayIdentifications() Size = $size")
         if (size - 1 >= 3) {
-            displayId0(allUserIdentifications[0])//Display relevant fields
-            displayId1(allUserIdentifications[1])
-            displayId2(allUserIdentifications[2])
-            displayId3(allUserIdentifications[3])
+            Log.d("SuperTest"," displayIdentifications() Size = $size  size - 1 >= 3")
+            Log.d("SuperTest"," displayIdentifications() size-1 = ${allUserIdentifications[size-1].plantName.toString()}, date = ${allUserIdentifications[size-1].dateTime.toString()}")
+            displayId0(allUserIdentifications[size-1])//Display relevant fields
+            Log.d("SuperTest"," 0 ${allUserIdentifications[size-1].dateTime}")
+            Log.d("SuperTest"," displayIdentifications() size-2 = ${allUserIdentifications[size-2].plantName.toString()}, date = ${allUserIdentifications[size-2].dateTime.toString()}")
+            displayId1(allUserIdentifications[size-2])
+            Log.d("SuperTest"," 0 ${allUserIdentifications[size-2].dateTime}")
+            displayId2(allUserIdentifications[size-3])
+            Log.d("SuperTest"," 0 ${allUserIdentifications[size-3].dateTime}")
+            displayId3(allUserIdentifications[size-4])
+            Log.d("SuperTest"," 0 ${allUserIdentifications[size-4].dateTime}")
         } else if (size - 1 >= 2) {
+            Log.d("SuperTest"," displayIdentifications() Size = $size  size - 1 >= 2")
             displayId0(allUserIdentifications[0])
             displayId1(allUserIdentifications[1])
             displayId2(allUserIdentifications[2])
             hideDisplayID3()
         } else if (size - 1 >= 1) {
+            Log.d("SuperTest"," displayIdentifications() Size = $size size - 1 >= 1")
             displayId0(allUserIdentifications[0])
             displayId1(allUserIdentifications[1])
             hideDisplayID2()
             hideDisplayID3()
         } else if (size > 0) {
+            Log.d("SuperTest"," displayIdentifications() Size = $size size > 0")
             displayId0(allUserIdentifications[0])
             hideDisplayID1()
             hideDisplayID2()
@@ -827,7 +861,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             R.id.nav_Identify -> {
                 ActivityNavigation.navToIdentifyActivity(this) //Go to IdentifyActivity
             }
-            R.id.nav_Find -> {
+            R.id.nav_Home -> {
                 return super.onOptionsItemSelected(item)  //Return as already within MapsActivity
             }
             R.id.nav_Sign_Out -> {

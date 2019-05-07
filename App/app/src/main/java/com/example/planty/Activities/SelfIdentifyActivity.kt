@@ -57,6 +57,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
         val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
         //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         intent.putExtra("baseIdent", plantType)
+        intent.putExtra("plantName", getPlantName())
         intent.putExtra("identifiedPlantUUID", identifiedPlantUUID)
         startActivity(intent) //Change to new class
     }
@@ -175,7 +176,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
             if (it.key.toString() == imageName) { //Compares the imageName to the Id name, to confirm the correct image details are loaded
                 val currentImage = it.getValue(UserImage::class.java)
                 val imgLoc = currentImage?.imageLoc
-                Picasso.get().load(imgLoc).rotate(90f).into(SelfIdentify_PlantImage)
+                Picasso.get().load(imgLoc).rotate(90f).resize(150, 200).into(SelfIdentify_PlantImage)
                 retryLoad = false
             }
         }
@@ -214,7 +215,7 @@ class SelfIdentifyActivity : AppCompatActivity() {
             R.id.nav_Identify -> {
                 ActivityNavigation.navToIdentifyActivity(this)
             }
-            R.id.nav_Find -> {
+            R.id.nav_Home -> {
                 ActivityNavigation.navToMapsActivity(this) //Go to MapsActivity
             }
             R.id.nav_Sign_Out -> {

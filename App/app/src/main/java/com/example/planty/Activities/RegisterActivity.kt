@@ -56,9 +56,6 @@ class RegisterActivity : AppCompatActivity() {
         } else if (password.isEmpty()) { //If the password is empty, display error message to User
             Toast.makeText(this, "Please enter a password", Toast.LENGTH_SHORT).show()
             return
-        } else if (password.length < 5) {
-            Toast.makeText(this, "Please enter a password longer than 5 characters long", Toast.LENGTH_SHORT).show()
-            return
         }
 
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
@@ -77,7 +74,7 @@ class RegisterActivity : AppCompatActivity() {
      *
      */
     private fun changeActivityToHome() {
-        val intent = Intent(this, IdentifyActivity::class.java) //Populate intent with new activity class
+        val intent = Intent(this, MapsActivity::class.java) //Populate intent with new activity class
         intent.flags =
             Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         startActivity(intent) //Change to new class
