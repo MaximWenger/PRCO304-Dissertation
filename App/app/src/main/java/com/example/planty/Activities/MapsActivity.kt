@@ -64,23 +64,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         updatePlantNameType()
         createButtonListeners()
         hideSearchDisplayDetails()
-        updateMainDescriptionTxt()
 
 
-    }
 
-    private fun updateMainDescriptionTxt(){
-        val plant = getPlantName()
-        if (plant == "") {
-            //hideAndShowFieldsPrevIdent()
-          //  MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
-            //MapsActivity_TextView_ViewingBranchesText.text = "Displaying all branches"
-        }
     }
 
     private fun hideSearchDisplayDetails(){
         MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
-
         MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
     }
 
@@ -383,27 +373,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         var size = allUserIdentifications.size
         Log.d("SuperTest"," displayIdentifications() Size = $size")
         if (size - 1 >= 3) {
-            Log.d("SuperTest"," displayIdentifications() Size = $size  size - 1 >= 3")
-            Log.d("SuperTest"," displayIdentifications() size-1 = ${allUserIdentifications[size-1].plantName.toString()}, date = ${allUserIdentifications[size-1].dateTime.toString()}")
             displayId0(allUserIdentifications[size-1])//Display relevant fields
-            Log.d("SuperTest"," 0 ${allUserIdentifications[size-1].dateTime}")
-            Log.d("SuperTest"," displayIdentifications() size-2 = ${allUserIdentifications[size-2].plantName.toString()}, date = ${allUserIdentifications[size-2].dateTime.toString()}")
             displayId1(allUserIdentifications[size-2])
-            Log.d("SuperTest"," 0 ${allUserIdentifications[size-2].dateTime}")
             displayId2(allUserIdentifications[size-3])
-            Log.d("SuperTest"," 0 ${allUserIdentifications[size-3].dateTime}")
             displayId3(allUserIdentifications[size-4])
-            Log.d("SuperTest"," 0 ${allUserIdentifications[size-4].dateTime}")
         } else if (size - 1 >= 2) {
             Log.d("SuperTest"," displayIdentifications() Size = $size  size - 1 >= 2")
-            displayId0(allUserIdentifications[0])
-            displayId1(allUserIdentifications[1])
-            displayId2(allUserIdentifications[2])
+            displayId0(allUserIdentifications[size-1])
+            displayId1(allUserIdentifications[size-2])
+            displayId2(allUserIdentifications[size-3])
             hideDisplayID3()
         } else if (size - 1 >= 1) {
             Log.d("SuperTest"," displayIdentifications() Size = $size size - 1 >= 1")
-            displayId0(allUserIdentifications[0])
-            displayId1(allUserIdentifications[1])
+            displayId0(allUserIdentifications[size-1])
+            displayId1(allUserIdentifications[size-2])
             hideDisplayID2()
             hideDisplayID3()
         } else if (size > 0) {
