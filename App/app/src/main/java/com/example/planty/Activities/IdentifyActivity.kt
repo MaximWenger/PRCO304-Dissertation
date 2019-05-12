@@ -30,6 +30,7 @@ class IdentifyActivity : AppCompatActivity() {
     var lastSelectedPhotoUri: Uri? = null //Stores photo
     private var filename = ""
 
+
     companion object {
         val SELECT_PHOTO_REQUEST_CODE = 0
     }
@@ -55,6 +56,8 @@ class IdentifyActivity : AppCompatActivity() {
             getCameraImage()//Open device camera and use the image taken
         }
     }
+
+    //Need tro show self ident on page load if showSelfIdentify() is lastSelectedPhotoUri populated and rejected is true
 
     /**Hides Button and Textview for Self-identifying
      *
@@ -128,12 +131,12 @@ class IdentifyActivity : AppCompatActivity() {
                             )//Pass the data to new activity & change activity
                         } else { //If it is NOT a plant
                             Log.d("SuperTest", "Got to line 129")
-                            showSelfIdentify()
                             Toast.makeText(
                                 this,
                                 "This photo is not a plant, please try another photo",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            showSelfIdentify()
                         }
                     }
                     .addOnFailureListener { e ->

@@ -8,7 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 class ActivityNavigation {
     companion object {
-        fun navToProfileActivity(c: Context) {
+        fun navToProfileActivity(c: Context) {//Cannot be "this" as it's reserved
             val intent = Intent(c, ProfileActivity::class.java) //Populate intent with new activity class
             //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
             c.startActivity(intent) //Change to new class
@@ -25,7 +25,7 @@ class ActivityNavigation {
          */
         fun signOut(c: Context) {
             FirebaseAuth.getInstance().signOut()
-            val intent = Intent(c, RegisterActivity::class.java)
+            val intent = Intent(c, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             c.startActivity(intent)
         }

@@ -69,20 +69,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
+    /**Hides Search fields
+     *
+     */
     private fun hideSearchDisplayDetails(){
         MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
         MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
     }
 
-
-
+    /**
+     * Creates listeners for all buttons
+     */
     private fun createButtonListeners(){ //Creates listeners for identfied buttons
         MapsActivity_PrevID0_Btn.setOnClickListener{
             var size = allUserIdentifications.size
             enableAllShowButtons(it)
             clearSearchText()
             hideSearchDisplayDetails()
-
             hideAndShowFieldsPrevIdent()
             mMap.clear()//Clear the markers from the map
             findSpecificIdentified(identifiedPlantsKey[size-1])//Find and display the markers for this specific plant
@@ -121,28 +124,35 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Hide all fields related to previous Idents
+     */
      private fun hideAndShowfieldsUserSearch(){
          MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
          MapsActivity_TextView_branchesSellTest.visibility = View.INVISIBLE
          MapsActivity_CurrentPlant_TextView.visibility = View.INVISIBLE
          MapsActivity_CurrentType_TextViewStatic.visibility = View.INVISIBLE
          MapsActivity_TypePlant_TextView.visibility = View.INVISIBLE
-
          MapsActivity_TextView_BranchesMatch.visibility = View.VISIBLE
          MapsActivity_TextView_SearchResult1.visibility = View.VISIBLE
     }
 
+    /**
+     * Display all fields related to previous Idents
+     */
     private fun hideAndShowFieldsPrevIdent(){
         MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
         MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
         MapsActivity_CurrentPlant_TextView.visibility = View.VISIBLE
         MapsActivity_CurrentType_TextViewStatic.visibility = View.VISIBLE
         MapsActivity_TypePlant_TextView.visibility = View.VISIBLE
-
         MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
         MapsActivity_TextView_SearchResult1.visibility = View.INVISIBLE
     }
 
+    /**Enables all of the previous User Ident buttons, disabling the clicked button
+     * @param selectedBtn The selected PreviousIdent button
+     */
     private fun enableAllShowButtons(selectedBtn: View? = null){
         MapsActivity_PrevID0_Btn.isEnabled = true
         MapsActivity_PrevID1_Btn.isEnabled = true
@@ -151,44 +161,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         selectedBtn?.isEnabled = false
     }
 
+    /**
+     * Clears the userSearch Field
+     */
     private fun clearSearchText(){
         ActivityMaps_UserSearch.text.clear()
     }
 
+    /**Searches the database for Branches || baseIDs depending on the userText search
+     *
+     */
     private fun processUserSearch(){
-        Log.d("SuperTest","Got to processUserSearch")
-    var baseIds = CloudVisionData().getBaseIdentLibrary()
+    var baseIds = CloudVisionData().getBaseIdentLibrary()//Get the baseIds
         var path = ""
-        var userText = ActivityMaps_UserSearch.text.toString()
-        if (checkUserSearchInput(userText)) {
-
-            Log.d("SuperTest","Got to processUserSearch DISPLAYING")
-                var allFoundBranches = UserSearch().searchAndCheckAllBranchNames(
-                    userText.toLowerCase(),
-                    allBranches
-                )    //CHECK BRANCHES FIRST
-                if (allFoundBranches.size > 0) {
+        var userText = ActivityMaps_UserSearch.text.toString()//Get the userSearch Text
+        if (checkUserSearchInput(userText)) { //If the userSearch text is viable
+                var allFoundBranches = UserSearch().searchAndCheckAllBranchNames(//Populates variable with all branches which match the description
+                    userText.toLowerCase(),allBranches)    //CHECK BRANCHES FIRST
+                if (allFoundBranches.size > 0) { //If any branches are found, display them
                     displaySearchMarkersUsingBranchObjects(allFoundBranches)
-                    populateSearchTextView(userText)
-                    //MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
-                    hideAndShowfieldsUserSearch()
-                } else {
-                    path = UserSearch().checkAllUserIdents(userText.toLowerCase(), allUserIdentifications, baseIds)
+                    populateSearchTextView(userText) //Display the userSearch text
+                    hideAndShowfieldsUserSearch()//Update viewable Fields
+                } else {//If no branches are found
+                    path = UserSearch().checkAllUserIdents(userText.toLowerCase(), allUserIdentifications, baseIds)//Check all user idents to confirm if any are found
                     if (path != "") {
                         displaySearchMarkersUsingPath(path)
                         populateSearchTextView(userText)
                         hideAndShowfieldsUserSearch()
-                       // MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
-                    } else {
+                    } else {//If no user idents are found, check ALL of the branches from the database
                         path = UserSearch().checkAllBranchBaseIDs(userText.toLowerCase(), baseIds)
                         if (path != "") {
                             displaySearchMarkersUsingPath(path)
                             populateSearchTextView(userText)
                             hideAndShowfieldsUserSearch()
-                            //MapsActivity_TextView_ViewingBranchesText.visibility = View.VISIBLE
                         } else {
-                           // hidePlantDescTextViews()
-                           // MapsActivity_TextView_BranchesMatch.visibility = View.INVISIBLE
                             Toast.makeText(this, "Search complete, nothing found", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -196,11 +202,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+    /**
+     * Updates textView to display what the user has Searched
+     */
     private fun populateSearchTextView(usersSearch: String){
         MapsActivity_TextView_SearchResult1.text = usersSearch
-        //MapsActivity_TextView_ViewingBranchesText.visibility = View.INVISIBLE
     }
 
+    /**Hides the mobile keyboard
+     *
+     */
     private fun hideKeyboard(){
         try {
             val inputManager: InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -211,6 +222,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Checks if the user searchBox is populated with atleast 2 chars
+     * Makes Toast if too short or empty
+     * @param userText userText from searchBox
+     * @return Boolean if the searchBox is populated
+     */
     private fun checkUserSearchInput(userText: String): Boolean {
         Log.d("SuperTest","Got to checkUserSearchInput")
         if (userText != "" && userText.length >= 2){
@@ -225,9 +242,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return false
     }
 
+    /**
+     * Displays Branch Map Markers for every given branch using Branch Objects
+     * @param allFoundBranches List of Branch Objects to display
+     */
     private fun displaySearchMarkersUsingBranchObjects(allFoundBranches: MutableList<Branch>){
-        Log.d("SuperTest","Got to display Branches")
-        //display those branches
         for (branch in allFoundBranches){ //Display all branch markers
             mMap.clear()
             populateSingleBranchMarker(branch)
@@ -239,21 +258,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Log.d("SuperTest","Finished Displaying branches")
     }
 
+    /**
+     * Displays Branch Map Markers for every given branch using Firebase Path
+     */
     private fun displaySearchMarkersUsingPath(path: String){
-       // Log.d("SuperTest","Got to line 116 = $path")
         mMap.clear()
         getSpecBranchIDs(path) //Display all branches under returned path
         hideSearchDisplayDetails()
-      //  MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
         MapsActivity_TextView_SearchResult1.visibility = View.VISIBLE
     }
 
-
+    /**
+     *Updates the Plant Name and Plant Type viewable for the user
+     * Used within Activity load, to display the correct details
+     *
+     */
     private fun updatePlantNameType(){//Used for normal acceess to page
         var plantName = getPlantName()
         Log.d("MapsActivity","updatePlantNameType, PlantName = $plantName")
         if (plantName != "") {
-            Log.d("MapsActivity","updatePlantNameType!!!!!!!!!!!!!!!!!!, PlantName = $plantName")
             var baseId = getBaseIdent()
             changePlantDesc(plantName, baseId)
             MapsActivity_TextView_branchesSellTest.visibility = View.VISIBLE
@@ -469,8 +492,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.d("MapsActivity", "displayIdentImage Error = ${p0.message}")
             }
         })
-
-//return imgLoc
     }
 
     /**Populates the previoulsy identified plant images
@@ -777,7 +798,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-
         mMap = googleMap
         populateGPS()
     }
@@ -858,21 +878,5 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return super.onOptionsItemSelected(item)
     }
 
-/*    companion object {
-        fun genericSignOut(c: Context) {
-            Intent(c, ContactUsActivity::class.java) //Populate intent with new activity class
-        }
-    }*/
-
-
-
-    /**Changes activity to ProfileActivity
-     *
-     */
-/*    private fun navToProfileActivity() {
-        val intent = Intent(this, ProfileActivity::class.java) //Populate intent with new activity class
-        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
-        startActivity(intent) //Change to new class
-    }*/
 }
 

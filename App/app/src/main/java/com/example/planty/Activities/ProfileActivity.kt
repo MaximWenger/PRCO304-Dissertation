@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.example.planty.Classes.ActivityNavigation
+import com.example.planty.Entities.User
 import com.example.planty.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -17,6 +18,7 @@ import kotlinx.android.synthetic.main.activity_profile.*
 
 class ProfileActivity : AppCompatActivity() {
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
@@ -24,7 +26,27 @@ class ProfileActivity : AppCompatActivity() {
         ActivityNavigation.verifyLoggedIn(this)//check the User is logged in
         getUserData()
         userData()
+
+        setButtonListeners()
+
     }
+
+    private fun setButtonListeners(){
+        ProfileActivity_SignOut_Button.setOnClickListener{
+            ActivityNavigation.signOut(this)
+        }
+        ProfileActivity_ChangePassword_Button.setOnClickListener{
+            changeToPasswordActivity()
+        }
+    }
+
+    private fun changeToPasswordActivity(){
+        val intent = Intent(this, ChangePasswordActivity::class.java) //Populate intent with new activity class
+        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
+        this.startActivity(intent) //Change to new class
+    }
+
+
 
     /**Gets user data
      *
@@ -34,16 +56,38 @@ class ProfileActivity : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot) {
-                p0.children.forEach {
+
+                val user = (p0.getValue(User::class.java))
+                populateUserName(user!!.username)
+                populateUserJoinDate(user.dateTime)
+
+/*                p0.children.forEach {
                     Log.d("profileActivity", it.toString())
                     ProfileActivity_TextView_UserEmail.text = FirebaseAuth.getInstance().currentUser?.email
-                }
+                    if (it.key.toString() == "username"){
+                        //userName =
+
+
+                    }
+                }*/
             }
 
             override fun onCancelled(p0: DatabaseError) {
                 Log.d("profileActivity", "Error getting user data")
             }
         })
+    }
+
+    private fun populateUserName(userName: String?){
+        profile_userUsername.text = userName.toString()
+    }
+
+    private fun populateUserEmail(email: String?){
+        ProfileActivity_TextView_UserEmail.text = email.toString()
+    }
+
+    private fun populateUserJoinDate(joinDate: String?){
+        profileActivity_TextView_JoinDate.text = joinDate.toString()
     }
 
     private fun userData() {
@@ -62,6 +106,7 @@ class ProfileActivity : AppCompatActivity() {
             // FirebaseUser.getToken() instead.
             val uid = user.uid
 
+            populateUserEmail(email)
             Log.d(
                 "profileActivity",
                 "User data = Name = $name, Email = $email, photoURL = $photoUrl, Email verified = $emailVerified, UID = $uid"
