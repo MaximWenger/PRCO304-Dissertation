@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto" android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView android:layout_width="match_parent"
+                                       android:layout_margin="5dp"
+                                       android:layout_height="wrap_content">
+        <LinearLayout android:layout_width="match_parent"
+                      android:padding="10dp"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical">
+            <TextView
+                    android:text="Plant Name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/previousIdents_PlantName"/>
+            <TextView
+                    android:text="Plant Type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/previousIdents_PlantType"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

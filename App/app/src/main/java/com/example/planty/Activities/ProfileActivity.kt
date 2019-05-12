@@ -6,7 +6,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.LinearLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.planty.Classes.ActivityNavigation
+import com.example.planty.Classes.DisplayAllUserIdents
+import com.example.planty.Entities.Identified
 import com.example.planty.Entities.User
 import com.example.planty.R
 import com.google.firebase.auth.FirebaseAuth
@@ -17,7 +22,7 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_profile.*
 
 class ProfileActivity : AppCompatActivity() {
-
+    private var allUserIdentifications: MutableList<Identified> = mutableListOf<Identified>() //Populated by getLatestIdentifications() to store all user identifications for user search
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +33,19 @@ class ProfileActivity : AppCompatActivity() {
         userData()
 
         setButtonListeners()
+        getAllIdents()
+
+
+    }
+
+    private fun populateRecyclerView(){
+        Log.d("ProfileActivity", "populateRecyclerView allUserIdents size= ${allUserIdentifications.size}")
+        val recyclerView = findViewById(R.id.ActivityProfile_PreviousIdents) as RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
+
+        val idents = allUserIdentifications
+        val adapter = DisplayAllUserIdents(idents)
+        recyclerView.adapter = adapter
 
     }
 
@@ -46,20 +64,38 @@ class ProfileActivity : AppCompatActivity() {
         this.startActivity(intent) //Change to new class
     }
 
+    private fun getAllIdents(){
+        val uid = FirebaseAuth.getInstance().uid
+        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uid}")
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot) {
+                p0.children.forEach {
+                    val userIdentified = (it.getValue(Identified::class.java))
+                    userIdentified?.let { it1 -> allUserIdentifications?.add(it1) }
+                }
+                populateRecyclerView()
+                Log.d("ProfileActivity", " allUserIdents size= ${allUserIdentifications.size}")
+            }
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d("ProfileActivity", "getLatestIdentifications Error = ${p0.message}")
+            }
+        })
 
+    }
 
     /**Gets user data
      *
      */
     private fun getUserData() {
-        val uid = FirebaseAuth.getInstance().uid
-        val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(p0: DataSnapshot) {
+        try {
+            val uid = FirebaseAuth.getInstance().uid
+            val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(p0: DataSnapshot) {
 
-                val user = (p0.getValue(User::class.java))
-                populateUserName(user!!.username)
-                populateUserJoinDate(user.dateTime)
+                    val user = (p0.getValue(User::class.java))
+                    populateUserName(user!!.username)
+                    populateUserJoinDate(user.dateTime)
 
 /*                p0.children.forEach {
                     Log.d("profileActivity", it.toString())
@@ -70,12 +106,16 @@ class ProfileActivity : AppCompatActivity() {
 
                     }
                 }*/
-            }
+                }
 
-            override fun onCancelled(p0: DatabaseError) {
-                Log.d("profileActivity", "Error getting user data")
-            }
-        })
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d("profileActivity", "Error getting user data")
+                }
+            })
+        }
+        catch(e:Exception){
+            Log.d("profileActivity", "getUserData() Error = ${e.message} ")
+        }
     }
 
     private fun populateUserName(userName: String?){
@@ -140,7 +180,7 @@ class ProfileActivity : AppCompatActivity() {
                 ActivityNavigation.signOut(this) //Signs the User out and returns to RegisterActivity
             }
             R.id.nav_Contact -> { //DOES NOTHING RIGHT NOW
-                return super.onOptionsItemSelected(item)  //
+               ActivityNavigation.navToContactUsActivity(this)
             }
             else -> return super.onOptionsItemSelected(item)
         }

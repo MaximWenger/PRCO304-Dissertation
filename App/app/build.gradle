@@ -44,6 +44,7 @@ dependencies {
 
     implementation 'com.xwray:groupie:2.3.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
 
 
 }
