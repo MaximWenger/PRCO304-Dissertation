@@ -19,6 +19,13 @@ class LoginActivity : AppCompatActivity() { //Combatability Activity
 
         setContentView(R.layout.activity_login)
 
+        setOnClickListeners()
+    }
+
+    /**
+     * Creates on click listeners for buttons
+     */
+    private fun setOnClickListeners(){
         button_login_login.setOnClickListener {
             hideKeyboard()
             logUserIn()

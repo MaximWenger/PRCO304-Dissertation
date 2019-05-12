@@ -23,6 +23,13 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setOnClickListeners()
+    }
+
+    /**
+     * creates onClickListeners for the buttons
+     */
+    private fun setOnClickListeners(){
         register_button_register.setOnClickListener {
             Log.d("RegisterActivity", "Register button pressed")
             hideKeyboard()

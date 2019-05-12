@@ -10,13 +10,11 @@ class ActivityNavigation {
     companion object {
         fun navToProfileActivity(c: Context) {//Cannot be "this" as it's reserved
             val intent = Intent(c, ProfileActivity::class.java) //Populate intent with new activity class
-            //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
             c.startActivity(intent) //Change to new class
         }
 
         fun navToContactUsActivity(c: Context) {
             val intent = Intent(c, ContactUsActivity::class.java) //Populate intent with new activity class
-            //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
             c.startActivity(intent) //Change to new class
         }
 
@@ -35,7 +33,6 @@ class ActivityNavigation {
          */
         fun navToIdentifyActivity(c: Context) {
             val intent = Intent(c, IdentifyActivity::class.java) //Populate intent with new activity class
-            //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
             c.startActivity(intent) //Change to new class
         }
 
@@ -54,7 +51,6 @@ class ActivityNavigation {
 
         fun navToMapsActivity(c: Context) {
             val intent = Intent(c, MapsActivity::class.java) //Populate intent with new activity class
-            //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
             c.startActivity(intent) //Change to new class
         }
 

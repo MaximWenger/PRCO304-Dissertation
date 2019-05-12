@@ -38,12 +38,18 @@ class IdentifiedActivity : AppCompatActivity() {
         ActivityNavigation.verifyLoggedIn(this)
         populateBaseIdent()
         populateIdentifiedString()
+        createClickListeners()
         populateIDRows()
         populateUserImage()
 
 
 
+    }
 
+    /**
+     * Creates Onclick listeners for all Buttons
+     */
+    private fun createClickListeners(){
         identified_button0.setOnClickListener {
             //If ID 0 clicked
             val plantName = identified_name_textview0.text.toString()

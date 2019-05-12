@@ -42,6 +42,13 @@ class SelfIdentifyActivity : AppCompatActivity() {
         ActivityNavigation.verifyLoggedIn(this)
         populateSpinner()
         populateUserImage()
+        setOnClickListener()
+    }
+
+    /**
+     * Creates onClickListner for the save button
+     */
+    private fun setOnClickListener(){
         SelfIdentify_Save_Button.setOnClickListener {
             if (checkPopulatedFields()) {
                 saveIdentification()
@@ -228,9 +235,4 @@ class SelfIdentifyActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
-    /**Sign the user out and change to LoginActivity
-     *
-     */
-
 }

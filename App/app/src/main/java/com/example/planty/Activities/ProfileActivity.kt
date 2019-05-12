@@ -31,24 +31,31 @@ class ProfileActivity : AppCompatActivity() {
         ActivityNavigation.verifyLoggedIn(this)//check the User is logged in
         getUserData()
         userData()
-
         setButtonListeners()
         getAllIdents()
 
 
     }
 
+    /**
+     * Populates the recyleview with previous user Identifications
+     */
     private fun populateRecyclerView(){
-        Log.d("ProfileActivity", "populateRecyclerView allUserIdents size= ${allUserIdentifications.size}")
-        val recyclerView = findViewById(R.id.ActivityProfile_PreviousIdents) as RecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-
-        val idents = allUserIdentifications
-        val adapter = DisplayAllUserIdents(idents)
-        recyclerView.adapter = adapter
-
+        try {
+            val recyclerView = findViewById(R.id.ActivityProfile_PreviousIdents) as RecyclerView
+            recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+            val idents = allUserIdentifications
+            val adapter = DisplayAllUserIdents(idents)
+            recyclerView.adapter = adapter
+        }
+        catch(e:java.lang.Exception){
+            Log.d("ProfileActivity", "populateRecyclerView() Something went wrong ${e.message}")
+        }
     }
 
+    /**
+     * Sets the buttonOnClick Listeners
+     */
     private fun setButtonListeners(){
         ProfileActivity_SignOut_Button.setOnClickListener{
             ActivityNavigation.signOut(this)
@@ -58,12 +65,17 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Changes to the Change Password activity
+     */
     private fun changeToPasswordActivity(){
         val intent = Intent(this, ChangePasswordActivity::class.java) //Populate intent with new activity class
-        //  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK) //Clear previous activities from stack
         this.startActivity(intent) //Change to new class
     }
 
+    /**
+     * Populates global var allUserIdentifications with every identification the user has made
+     */
     private fun getAllIdents(){
         try {
             val uid = FirebaseAuth.getInstance().uid
@@ -89,7 +101,7 @@ class ProfileActivity : AppCompatActivity() {
 
     }
 
-    /**Gets user data
+    /**Gets user data, username and join date/time
      *
      */
     private fun getUserData() {
@@ -124,39 +136,38 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Populates textfield with users username
+     * @param userName Users username
+     */
     private fun populateUserName(userName: String?){
         profile_userUsername.text = userName.toString()
     }
 
+    /**
+     * Populates textfield with user email
+     * @param email Users email
+     */
     private fun populateUserEmail(email: String?){
         ProfileActivity_TextView_UserEmail.text = email.toString()
     }
 
+    /**
+     * Populates textfield with user Join date/Time
+     * @param joinDate The date the user made the account
+     */
     private fun populateUserJoinDate(joinDate: String?){
         profileActivity_TextView_JoinDate.text = joinDate.toString()
     }
 
+    /**
+     * Returns user email from Firebase and calls populateUserEmail()
+     */
     private fun userData() {
         val user = FirebaseAuth.getInstance().currentUser
         user?.let {
-            // Name, email address, and profile photo Url
-            val name = user.displayName
             val email = user.email
-            val photoUrl = user.photoUrl
-
-            // Check if user's email is verified
-            val emailVerified = user.isEmailVerified
-
-            // The user's ID, unique to the Firebase project. Do NOT use this value to
-            // authenticate with your backend server, if you have one. Use
-            // FirebaseUser.getToken() instead.
-            val uid = user.uid
-
             populateUserEmail(email)
-            Log.d(
-                "profileActivity",
-                "User data = Name = $name, Email = $email, photoURL = $photoUrl, Email verified = $emailVerified, UID = $uid"
-            )
         }
     }
 

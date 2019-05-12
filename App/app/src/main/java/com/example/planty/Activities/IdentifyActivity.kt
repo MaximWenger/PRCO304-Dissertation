@@ -42,18 +42,26 @@ class IdentifyActivity : AppCompatActivity() {
 
         hideSelfIdentify()
 
-        IdentifyActivity_Button_SelfIdentify.setOnClickListener {
-            saveImageToFirebase(lastSelectedPhotoUri)
-            passStringSelfIdentifyActivity()
-        }
+        setOnClickListeners()
 
         ActivityNavigation.verifyLoggedIn(this)//check the User is logged in
+
+    }
+
+    /**
+     * Creates onClick listeners for the buttons
+     */
+    private fun setOnClickListeners(){
         selectgallery_button_Identify.setOnClickListener {
             //Called when gallery icon is selected
             getGalleryImage()// Get image from device gallery
         }
         selectcamera_button_Identify.setOnClickListener {
             getCameraImage()//Open device camera and use the image taken
+        }
+        IdentifyActivity_Button_SelfIdentify.setOnClickListener {
+            saveImageToFirebase(lastSelectedPhotoUri)
+            passStringSelfIdentifyActivity()
         }
     }
 
@@ -212,6 +220,9 @@ class IdentifyActivity : AppCompatActivity() {
         startActivity(intent)//Change to the new activity
     }
 
+    /**
+     * Changes to SelfIdentify Activity with Filename within the intent
+     */
     private fun passStringSelfIdentifyActivity() {
         val intent = Intent(this, SelfIdentifyActivity::class.java)
         intent.putExtra("fileName", filename)
