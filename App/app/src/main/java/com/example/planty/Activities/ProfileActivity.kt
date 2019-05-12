@@ -41,7 +41,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun populateRecyclerView(){
         Log.d("ProfileActivity", "populateRecyclerView allUserIdents size= ${allUserIdentifications.size}")
         val recyclerView = findViewById(R.id.ActivityProfile_PreviousIdents) as RecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
+        recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
         val idents = allUserIdentifications
         val adapter = DisplayAllUserIdents(idents)
@@ -65,21 +65,27 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun getAllIdents(){
-        val uid = FirebaseAuth.getInstance().uid
-        val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uid}")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(p0: DataSnapshot) {
-                p0.children.forEach {
-                    val userIdentified = (it.getValue(Identified::class.java))
-                    userIdentified?.let { it1 -> allUserIdentifications?.add(it1) }
+        try {
+            val uid = FirebaseAuth.getInstance().uid
+            val ref = FirebaseDatabase.getInstance().getReference("/identifiedPlants/${uid}")
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(p0: DataSnapshot) {
+                    p0.children.forEach {
+                        val userIdentified = (it.getValue(Identified::class.java))
+                        userIdentified?.let { it1 -> allUserIdentifications?.add(it1) }
+                    }
+                    populateRecyclerView()
+                    Log.d("ProfileActivity", " allUserIdents size= ${allUserIdentifications.size}")
                 }
-                populateRecyclerView()
-                Log.d("ProfileActivity", " allUserIdents size= ${allUserIdentifications.size}")
-            }
-            override fun onCancelled(p0: DatabaseError) {
-                Log.d("ProfileActivity", "getLatestIdentifications Error = ${p0.message}")
-            }
-        })
+
+                override fun onCancelled(p0: DatabaseError) {
+                    Log.d("ProfileActivity", "getLatestIdentifications Error = ${p0.message}")
+                }
+            })
+        }
+        catch(e:Exception){
+            Log.d("ProfileActivity", "getAllIdents() Something went wrong ${e.message}")
+        }
 
     }
 
