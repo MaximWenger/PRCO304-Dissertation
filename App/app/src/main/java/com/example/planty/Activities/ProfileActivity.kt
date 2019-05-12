@@ -22,7 +22,7 @@ class ProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
-
+        supportActionBar?.title = "Planty  |  Profile"
         ActivityNavigation.verifyLoggedIn(this)//check the User is logged in
         getUserData()
         userData()
