@@ -570,7 +570,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             getSpecPlants(plantName, baseId) //Display the markers for branches which sell the plant
         }
         else if (baseID.isNotEmpty()){//Display all markers for the specific baseID if there is a baseID
-            var path = "/basePlants/" + baseID 
+            var path = "/basePlants/" + baseID
             getSpecBranchIDs(path)
         }
         else {
