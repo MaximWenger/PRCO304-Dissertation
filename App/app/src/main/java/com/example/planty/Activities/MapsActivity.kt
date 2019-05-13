@@ -358,9 +358,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      *
      */
     private fun dateSortIdentifications(){
-        for(indent in allUserIdentifications){
-            Log.d("SuperTest1", "before Sort = ${indent.dateTime}")
-        }
         var swap = true
         while(swap){
             swap = false
@@ -376,11 +373,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
-        allUserIdentifications.reverse() //Must reverse both, to maintain newest ident at start
-        identifiedPlantsKey.reverse()//Must reverse both, to maintain newest ident at start
-        for(indent in allUserIdentifications){
-            Log.d("SuperTest1", "After Sort = ${indent.dateTime}")
-        }
+       // allUserIdentifications.reverse() //Must reverse both, to maintain newest ident at start
+       // identifiedPlantsKey.reverse()//Must reverse both, to maintain newest ident at start
     }
 
     /**Populates and Hides previous identifications depending if the data exists
@@ -420,7 +414,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             hideDisplayID3()
         } else {
             MapsActivity_TextView1.visibility = View.INVISIBLE
-          //  MapsActivity_TextView2.visibility = View.INVISIBLE
             hideDisplayID0()//Hide all fields
             hideDisplayID1()
             hideDisplayID2()
@@ -577,7 +570,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             getSpecPlants(plantName, baseId) //Display the markers for branches which sell the plant
         }
         else if (baseID.isNotEmpty()){//Display all markers for the specific baseID if there is a baseID
-            var path = "/basePlants/" + baseID /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            var path = "/basePlants/" + baseID 
             getSpecBranchIDs(path)
         }
         else {

@@ -66,20 +66,15 @@ class IdentifyActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Disables all buttons
+     */
     private fun disableAllButtons(){
         IdentifyActivity_Button_SelfIdentify.isEnabled = false
         IdentifyActivity_TextView_ActuallyPlant.isEnabled = false
         selectcamera_button_Identify.isEnabled = false
         selectgallery_button_Identify.isEnabled = false
     }
-
-
-    private fun enableSelfIdent(){
-        IdentifyActivity_Button_SelfIdentify.isEnabled = true
-        IdentifyActivity_TextView_ActuallyPlant.isEnabled = true
-    }
-
-
 
     /**
      * Changes to the Camera Activity
