@@ -25,28 +25,24 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_identify.*
 import java.lang.Exception
 import java.util.*
+import kotlin.concurrent.schedule
 
 class IdentifyActivity : AppCompatActivity() {
-    var lastSelectedPhotoUri: Uri? = null //Stores photo
-    private var filename = ""
-
-
     companion object {
-        val SELECT_PHOTO_REQUEST_CODE = 0
+    private var lastSelectedPhotoUri: Uri? = null //Stores photo
+    private var filename = ""
+        private val SELECT_PHOTO_REQUEST_CODE = 0
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_identify)
         supportActionBar?.title = "Planty  |  Identify Plants"
-
-        hideSelfIdentify()
-
         setOnClickListeners()
-
         ActivityNavigation.verifyLoggedIn(this)//check the User is logged in
-
     }
+
+
 
     /**
      * Creates onClick listeners for the buttons
@@ -60,29 +56,30 @@ class IdentifyActivity : AppCompatActivity() {
             getCameraImage()//Open device camera and use the image taken
         }
         IdentifyActivity_Button_SelfIdentify.setOnClickListener {
-            saveImageToFirebase(lastSelectedPhotoUri)
-            passStringSelfIdentifyActivity()
+            Log.d("IdentifyActivity", "SelfIdent button, URI =  $lastSelectedPhotoUri")
+            if (lastSelectedPhotoUri == null){
+                Toast.makeText(this,"Please select an image", Toast.LENGTH_SHORT).show()
+            } else {
+                saveImageToFirebase(lastSelectedPhotoUri)
+                passStringSelfIdentifyActivity()
+            }
         }
     }
 
-    //Need tro show self ident on page load if showSelfIdentify() is lastSelectedPhotoUri populated and rejected is true
-
-    /**Hides Button and Textview for Self-identifying
-     *
-     */
-    private fun hideSelfIdentify() {
-        IdentifyActivity_Button_SelfIdentify.visibility = View.INVISIBLE
-        IdentifyActivity_TextView_ActuallyPlant.visibility = View.INVISIBLE
+    private fun disableAllButtons(){
+        IdentifyActivity_Button_SelfIdentify.isEnabled = false
+        IdentifyActivity_TextView_ActuallyPlant.isEnabled = false
+        selectcamera_button_Identify.isEnabled = false
+        selectgallery_button_Identify.isEnabled = false
     }
 
-    /**Shows Button and Textview for Self-identifying
-     *
-     */
-    private fun showSelfIdentify() {
-        Log.d("SuperTest", "Showing Self Identify")
-        IdentifyActivity_Button_SelfIdentify.visibility = View.VISIBLE
-        IdentifyActivity_TextView_ActuallyPlant.visibility = View.VISIBLE
+
+    private fun enableSelfIdent(){
+        IdentifyActivity_Button_SelfIdentify.isEnabled = true
+        IdentifyActivity_TextView_ActuallyPlant.isEnabled = true
     }
+
+
 
     /**
      * Changes to the Camera Activity
@@ -92,7 +89,7 @@ class IdentifyActivity : AppCompatActivity() {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             startActivityForResult(intent, SELECT_PHOTO_REQUEST_CODE)
         } catch (e: Exception) {
-            Log.d("IdentifyActivity", "getCameraImage = ${e.message}")
+            Log.d("IdentifyActivity", "getCameraImage Error = ${e.message}")
         }
     }
 
@@ -110,11 +107,7 @@ class IdentifyActivity : AppCompatActivity() {
      * if the image contains a plant, the image is saved, labels are sorted and the activity is changed.
      * If not, the user is prompted to try another photo
      */
-    override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
-    ) { //Gets called after image is chosen from gallery
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) { //Gets called after image is chosen from gallery
         try {
             super.onActivityResult(requestCode, resultCode, data)
             if (requestCode == SELECT_PHOTO_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) { //Check the photo is selected
@@ -124,39 +117,28 @@ class IdentifyActivity : AppCompatActivity() {
                     contentResolver,
                     lastSelectedPhotoUri
                 )//Convert the resulting image to a bitmap
-                val image =
-                    FirebaseVisionImage.fromBitmap(bitmap) //Convert the bitmap into an image designed for ML Firebase //NOT CHECKED FOR ROTATION
+                val image = FirebaseVisionImage.fromBitmap(bitmap) //Convert the bitmap into an image designed for ML Firebase //NOT CHECKED FOR ROTATION
                 val labeler = FirebaseVision.getInstance().cloudImageLabeler
                 labeler.processImage(image)
                     .addOnSuccessListener { labels ->
                         if (CloudVisionData().confirmPlant(labels)) { //check if the image looks to have a plant
+                            disableAllButtons()
                             saveImageToFirebase(lastSelectedPhotoUri)              //save the image to firebase
                             val baseIdent = CloudVisionData().baseImageIdentFilter(labels)//Return base identification
                             val sortedList = CloudVisionData().imageDataFilter(labels) //Sort the vision data
-                            passStringIdentifiedActivity(
-                                sortedList,
-                                baseIdent
-                            )//Pass the data to new activity & change activity
+                            passStringIdentifiedActivity(sortedList, baseIdent)//Pass the data to new activity & change activity
                         } else { //If it is NOT a plant
-                            Log.d("SuperTest", "Got to line 129")
-                            Toast.makeText(
-                                this,
-                                "This photo is not a plant, please try another photo",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            showSelfIdentify()
+                            Toast.makeText(this,"This photo is not a plant, please try another photo", Toast.LENGTH_SHORT).show()
+                            Log.d("IdentifyActivity", "Selected image is $lastSelectedPhotoUri")
                         }
                     }
                     .addOnFailureListener { e ->
                         Log.d("IdentifyActivity", "Something went wrong : ${e.message}")
                     }
             }
+
             if (data == null){
-                Toast.makeText(
-                    this,
-                    "Something went wrong, could not fetch image.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this,"Something went wrong, could not fetch image.", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Log.d("IdentifyActivity", "Image processing broke = ${e.message}")
