@@ -4,7 +4,7 @@ Plymouth BSC  (Hons) Computer Science dissertation written in Kotlin, developed 
 Plant Identifier and Branch Finder, Mobile Application.
 
 Technologies used:
-Android Studio
-Firebase
-Google Vision API
+Android Studio,
+Firebase,
+Google Vision API,
 Kotlin
